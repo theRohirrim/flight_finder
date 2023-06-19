@@ -25,5 +25,12 @@ function onDeviceReady() {
     // Cordova is now initialized. Have fun!
 
     console.log('Running cordova-' + cordova.platformId + '@' + cordova.version);
-    document.getElementById('deviceready').classList.add('ready');
+    
+    // Set default date to today
+    defaultDate();
+}
+
+// Set date to today function
+function defaultDate() {
+    document.getElementById('datePicker').valueAsDate = new Date();
 }
