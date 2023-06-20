@@ -23,11 +23,17 @@
     </head>
     <body>
         <h1>Flight Finder</h1>
-        <form>
+        <form autocomplete="off">
             <fieldset>
                 <legend>Find a Flight</legend>
 
-                <!-- Date -->
+                <!-- FR1 Departure Location w/ autocomplete -->
+                <div class="autocomplete">
+                    <label>Departure:</label>
+                    <input id="departure" type="text" placeholder="Pick a location">
+                </div>
+
+                <!-- FR3 Date Select-->
                 <label>Departure Date:</label>
                 <div id="date">
                     <input id="datePicker" type="date">
@@ -39,7 +45,7 @@
                     <input id="limit" type="number" value="20" min="10" max="50" step="5">
                 </div>
 
-                <!-- Search button -->
+                <!-- FR4 Search button -->
                 <div id="search">
                     <input id="search_button" type="button" value="Search">
                 </div>
