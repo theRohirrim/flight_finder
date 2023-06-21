@@ -34,8 +34,13 @@ function onDeviceReady() {
     // Set date to today function
     document.getElementById('datePicker').valueAsDate = new Date();
 
-    //set up autcomplete for text input field
-    controller.autocomplete(document.getElementById('departure'), autocomplete_test);
+    // Set up autcomplete for text input fields
+    controller.autocomplete(document.getElementById('depart'), autocomplete_test);
+    controller.autocomplete(document.getElementById('arrive'), autocomplete_test);
+
+    // Set listener to search button to activate search
+    //document.getElementById("search_button").addEventListener("click", controller.do_search()); 
+
 }
 
 // JavaScript 'class' with all functions within
@@ -68,7 +73,7 @@ function FlightSearch() {
             var a,b, i, val = this.value;
             // Close any open lists of autocompleted values
             closeAllLists();
-            if (!val) {return false;}
+            if (!val || val.length < 2) {return false;}
             currentFocus = -1;
             // Create a DIV element that will contain the items (values)
             a = document.createElement("DIV")
@@ -78,13 +83,12 @@ function FlightSearch() {
             this.parentNode.appendChild(a);
             // For each item in the array...
             for (i=0; i < arr.length; i++) {
-                // Check if item starts with the same letter as the text field value
-                if (arr[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+                // Check if item includes the same letter as the text field value
+                if ((arr[i].toUpperCase()).includes(val.toUpperCase())) {
                     // Create a DIV element for each matching element
                     b = document.createElement("DIV");
-                    // Make the matching letters bold
-                    b.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
-                    b.innerHTML += arr[i].substr(val.length);
+                    // Insert the value of the matching words
+                    b.innerHTML = arr[i]
                     // Insert an input field that will hold the current array item's value
                     b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
                     // Execute a function when someone clicks on the item value (DIV element)
@@ -153,9 +157,63 @@ function FlightSearch() {
         })
     }
 
-    this.test = function() {
-        return "This does work";
+    // Increment Date by 1
+    function incrementDate(date_str) {
+        var parts = date_str.split("-");
+        var dt = new Date(
+            parseInt(parts[0], 10),      // year
+            parseInt(parts[1], 10) - 1,  // month (starts with 0)
+            parseInt(parts[2], 10)       // date
+        );
+        dt.setDate(dt.getDate() + 1);
+        parts[0] = "" + dt.getFullYear();
+        parts[1] = "" + (dt.getMonth() + 1);
+        if (parts[1].length < 2) {
+            parts[1] = "0" + parts[1];
+        }
+        parts[2] = "" + dt.getDate();
+        if (parts[2].length < 2) {
+            parts[2] = "0" + parts[2];
+        }
+        return parts.join("-");
     }
+
+    // Date Format Converter - to match format accepted by the API
+    function convertDateFormat(date_string) {
+        const dateArray = date_string.split("-");
+        const reversedArray = dateArray.reverse();
+        const newDateString = reversedArray.join("/");
+        return newDateString;
+    }
+    
+
+    // Initiate a search call to the API with included inputs
+    function do_search() {
+        // Get all the inputs from the HTML
+        var depart = document.getElementById("depart").value;
+        var arrive = document.getElementById("arrive").value;
+        var date = document.getElementById("datePicker").value;
+        var limit = document.getElementById("limit_num").value;
+        // Get the next day's date & convert format
+        var tomorrow = convertDateFormat(incrementDate(date));
+        date = convertDateFormat(date);
+
+        console.log(depart, arrive, date, tomorrow, limit);
+
+        function onSuccess(obj) {
+            console.log(obj);
+        }
+
+        //Build the URL string
+        var searchUrl = BASE_GET_URL + '/v2/search?' + 'fly_from=' + depart +
+         '&fly_to=' + arrive + '&dateFrom=' + date + '&dateTo=' + tomorrow;
+
+        
+         $.ajax(searchUrl, {type: "GET", data: {}, headers: {apikey: API_KEY}, success: onSuccess});
+    }
+
+    // Set listener to search button to activate search
+    document.getElementById("search_button").addEventListener("click", do_search); 
 }
 
 var autocomplete_test = ['Apple', 'Banana', 'Cherry', 'Coke', 'Deez Nuts'];

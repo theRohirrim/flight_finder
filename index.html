@@ -11,7 +11,7 @@
             * Disables use of inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
                 * Enable inline JS: add 'unsafe-inline' to default-src
         -->
-        <meta http-equiv="Content-Security-Policy" content="default-src 'self' http://code.jquery.com/jquery-3.5.1.min.js data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self' http://code.jquery.com/jquery-3.5.1.min.js api.tequila.kiwi.com data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;">
         <meta name="format-detection" content="telephone=no">
         <meta name="msapplication-tap-highlight" content="no">
         <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
@@ -29,8 +29,14 @@
 
                 <!-- FR1 Departure Location w/ autocomplete -->
                 <div class="autocomplete">
-                    <label>Departure:</label>
-                    <input id="departure" type="text" placeholder="Pick a location">
+                    <label>Depart:</label>
+                    <input id="depart" type="text" placeholder="Pick a location">
+                </div>
+
+                <!-- FR2 Arrival Location w/ autocomplete -->
+                <div class="autocomplete">
+                    <label>Arrive:</label>
+                    <input id="arrive" type="text" placeholder="Pick a location">
                 </div>
 
                 <!-- FR3 Date Select-->
@@ -42,7 +48,7 @@
                 <!-- Limit returned results -->
                 <label>Limit:</label>
                 <div id="limit">
-                    <input id="limit" type="number" value="20" min="10" max="50" step="5">
+                    <input id="limit_num" type="number" value="20" min="10" max="50" step="5">
                 </div>
 
                 <!-- FR4 Search button -->
