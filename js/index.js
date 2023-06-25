@@ -220,8 +220,11 @@ function FlightSearch() {
                 var auto_entry = obj.locations[i].city.name + " (" + 
                 obj.locations[i].code + "), " + obj.locations[i].city.country.name;
                 autocomplete_list.push(auto_entry);
+                location_dictionary[auto_entry] = {code: obj.locations[i].code,
+                type: obj.locations[i].type}
             }
             console.log(autocomplete_list);
+            console.log(location_dictionary);
         }
 
         //Build the locations URL string
