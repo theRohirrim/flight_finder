@@ -199,16 +199,43 @@ function FlightSearch() {
 
         console.log(depart, arrive, date, tomorrow, limit);
 
+        // what to do on successful request
         function onSuccess(obj) {
             console.log(obj);
+            console.log(obj.data.length);
+            var flights = [];
+            // create an entry for each flight up to the limit specified
+            for (let i = 0; i < limit; i++) {
+                var flight = {
+                    route: obj.data[i].cityFrom + " (" + obj.data[i].flyFrom +
+                     ") to " + obj.data[i].cityTo + " (" + obj.data[i].flyTo + ")",
+                    depart: obj.data[i].local_departure,
+                    arrive: obj.data[i].local_arrival,
+                    duration: obj.data[i].duration.departure,
+                    cost: obj.data[i].price
+                }
+
+                // Add the flight to the flight list
+                flights.push(flight);
+            }
+
+            console.log(flights);
         }
 
         //Build the URL string
-        var searchUrl = BASE_GET_URL + '/v2/search?' + 'fly_from=' + depart +
-         '&fly_to=' + arrive + '&dateFrom=' + date + '&dateTo=' + tomorrow;
+        var searchUrl = BASE_GET_URL + '/v2/search?' + 'fly_from=' + location_dictionary[depart].code +
+         '&fly_to=' + location_dictionary[arrive].code + '&dateFrom=' + date + '&dateTo=' + tomorrow;
 
-        
-         $.ajax(searchUrl, {type: "GET", data: {}, headers: {apikey: API_KEY}, success: onSuccess});
+        // do ajax call and set loader to active before being turned off at the completion of the call
+         $.ajax(searchUrl, {type: "GET", 
+         beforeSend: function (){
+            var img = document.getElementsByClassName('loader')[0];
+            img.style.display = "";},
+            data: {}, headers: {apikey: API_KEY}, success: onSuccess,
+            complete: function(){
+                var img = document.getElementsByClassName('loader')[0];
+                img.style.display = "none";;
+            }});
     }
 
     this.doCodes = function() {
