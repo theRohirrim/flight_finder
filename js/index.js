@@ -34,12 +34,11 @@ function onDeviceReady() {
     // Set date to today function
     document.getElementById('datePicker').valueAsDate = new Date();
 
-    // Set up autcomplete for text input fields
-    controller.autocomplete(document.getElementById('depart'), autocomplete_test);
-    controller.autocomplete(document.getElementById('arrive'), autocomplete_test);
+    controller.doCodes();
 
-    // Set listener to search button to activate search
-    //document.getElementById("search_button").addEventListener("click", controller.do_search()); 
+    // Set up autcomplete for text input fields
+    controller.autocomplete(document.getElementById('depart'), autocomplete_list);
+    controller.autocomplete(document.getElementById('arrive'), autocomplete_list);
 
 }
 
@@ -188,7 +187,7 @@ function FlightSearch() {
     
 
     // Initiate a search call to the API with included inputs
-    function do_search() {
+    function doSearch() {
         // Get all the inputs from the HTML
         var depart = document.getElementById("depart").value;
         var arrive = document.getElementById("arrive").value;
@@ -212,8 +211,31 @@ function FlightSearch() {
          $.ajax(searchUrl, {type: "GET", data: {}, headers: {apikey: API_KEY}, success: onSuccess});
     }
 
+    this.doCodes = function() {
+        var myObj;
+        // Import codes from separate file
+        fetch("js/airport_codes.json")
+        .then((res) => res.text())
+        .then((text) => {
+            myObj = JSON.stringify(text);
+            // Run parse twice because text is 'over stringified'
+            myObj = JSON.parse(myObj);
+            myObj = JSON.parse(myObj);
+
+            // Extract all codes and enter them into global variable for autocomplete
+            for (let i = 0; i < myObj.length; i++ ) {
+                var auto_string = myObj[i].Airport + " (" + myObj[i].Code +
+                "), " + myObj[i].Country;
+                autocomplete_list.push(auto_string); 
+            }
+            console.log(autocomplete_list);
+        })
+        .catch((e) => console.error(e));
+    }
+
     // Set listener to search button to activate search
-    document.getElementById("search_button").addEventListener("click", do_search); 
+    document.getElementById("search_button").addEventListener("click", doSearch); 
 }
+var autocomplete_list = [];
 
 var autocomplete_test = ['Apple', 'Banana', 'Cherry', 'Coke', 'Deez Nuts'];
