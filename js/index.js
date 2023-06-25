@@ -53,16 +53,6 @@ function FlightSearch() {
 
     var API_KEY = "j9z5EBBq-xysj_2iuZzB21Oau3kNPRl_";
 
-    // Gets locations and sets them into local storage for autocomplete
-    function getLocations() {
-
-        function onSuccess(obj) {
-            console.log("Locations retrieved", obj);
-
-            var location_data;
-        }
-    }
-
     // Autocomplete text inputs for locations, from W3Schools @ https://www.w3schools.com/howto/howto_js_autocomplete.asp
     this.autocomplete = function(inp, arr) {
         /* Takes two arguments, text input and array of possible values */
@@ -192,12 +182,12 @@ function FlightSearch() {
         var depart = document.getElementById("depart").value;
         var arrive = document.getElementById("arrive").value;
         var date = document.getElementById("datePicker").value;
+        console.log(date);
+        console.log(new Date());
         var limit = document.getElementById("limit_num").value;
         // Get the next day's date & convert format
         var tomorrow = convertDateFormat(incrementDate(date));
         date = convertDateFormat(date);
-
-        console.log(depart, arrive, date, tomorrow, limit);
 
         // Create table function to insert into the html with the appropriate results, from StackDiary.com
         function createTableFromObjects(data) {
@@ -235,8 +225,6 @@ function FlightSearch() {
 
         // what to do on successful request
         function onSuccess(obj) {
-            console.log(obj);
-            console.log(obj.data.length);
             var flights = [];
 
             if (obj.data.length == 0) {
@@ -273,17 +261,24 @@ function FlightSearch() {
         var searchUrl = BASE_GET_URL + '/v2/search?' + 'fly_from=' + location_dictionary[depart].code +
          '&fly_to=' + location_dictionary[arrive].code + '&dateFrom=' + date + '&dateTo=' + tomorrow;
 
-        // do ajax call and set loader to active before being turned off at the completion of the call
-         $.ajax(searchUrl, {type: "GET", 
-         beforeSend: function (){
-            var img = document.getElementsByClassName('loader')[0];
-            img.style.display = "";},
-            data: {}, headers: {apikey: API_KEY}, success: onSuccess,
-            complete: function(){
+         // Catch errors on the inputs
+         if (depart == arrive) {
+            alert("You cannot have departure and arrival locations be the same.");
+         } else if (new Date(document.getElementById("datePicker").value) < new Date()) {
+            alert("You cannot pick a date which is in the past.");
+         } else {
+            // do ajax call and set loader to active before being turned off at the completion of the call
+            $.ajax(searchUrl, {type: "GET", 
+            beforeSend: function (){
                 var img = document.getElementsByClassName('loader')[0];
-                img.style.display = "none";;
-            }});
-    }
+                img.style.display = "";},
+                data: {}, headers: {apikey: API_KEY}, success: onSuccess,
+                complete: function(){
+                    var img = document.getElementsByClassName('loader')[0];
+                    img.style.display = "none";;
+                }});
+         };
+    };
 
     function convertString(string){
         return string.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
@@ -292,7 +287,6 @@ function FlightSearch() {
     this.doCodes = function() {
 
         function onSuccess(obj) {
-            console.log(obj);
 
             for (let i = 0; i < obj.locations.length; i++) {
                 var auto_entry = convertString(obj.locations[i].city.name) + " (" + 
@@ -301,8 +295,6 @@ function FlightSearch() {
                 location_dictionary[auto_entry] = {code: obj.locations[i].code,
                 type: obj.locations[i].type}
             }
-            console.log(autocomplete_list);
-            console.log(location_dictionary);
         }
 
         //Build the locations URL string
