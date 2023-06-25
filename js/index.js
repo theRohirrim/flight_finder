@@ -199,27 +199,74 @@ function FlightSearch() {
 
         console.log(depart, arrive, date, tomorrow, limit);
 
+        // Create table function to insert into the html with the appropriate results, from StackDiary.com
+        function createTableFromObjects(data) {
+            // clear the container of any current content or table
+            const container = document.getElementById('flights-container');
+            if (container.childNodes.length > 0){
+                container.replaceChildren();
+            }
+
+            const table = document.createElement('table');
+            const headerRow = document.createElement('tr');
+            
+            // Create table header row
+            const keys = Object.keys(data[0]);
+            for (const key of keys) {
+              const headerCell = document.createElement('th');
+              headerCell.textContent = key;
+              headerRow.appendChild(headerCell);
+            }
+            table.appendChild(headerRow);
+          
+            // Create table data rows
+            for (const obj of data) {
+              const dataRow = document.createElement('tr');
+              for (const key of keys) {
+                const dataCell = document.createElement('td');
+                dataCell.textContent = obj[key];
+                dataRow.appendChild(dataCell);
+              }
+              table.appendChild(dataRow);
+            }
+          
+            return table;
+        }
+
         // what to do on successful request
         function onSuccess(obj) {
             console.log(obj);
             console.log(obj.data.length);
             var flights = [];
-            // create an entry for each flight up to the limit specified
-            for (let i = 0; i < limit; i++) {
-                var flight = {
-                    route: obj.data[i].cityFrom + " (" + obj.data[i].flyFrom +
-                     ") to " + obj.data[i].cityTo + " (" + obj.data[i].flyTo + ")",
-                    depart: obj.data[i].local_departure,
-                    arrive: obj.data[i].local_arrival,
-                    duration: obj.data[i].duration.departure,
-                    cost: obj.data[i].price
+
+            if (obj.data.length == 0) {
+                // alert the user if there were no results
+                if (obj.data.length == 0) {
+                    alert("There were no results for your search");
+                    // remove the loading icon if its still going
+                    var img = document.getElementsByClassName('loader')[0];
+                    img.style.display = "none";;
+                }
+            } else {
+                // create an entry for each flight up to the limit specified
+                for (let i = 0; i < limit; i++) {
+                    var flight = {
+                        route: obj.data[i].cityFrom + " (" + obj.data[i].flyFrom +
+                         ") to " + obj.data[i].cityTo + " (" + obj.data[i].flyTo + ")",
+                        depart: obj.data[i].local_departure,
+                        arrive: obj.data[i].local_arrival,
+                        duration: obj.data[i].duration.departure,
+                        cost: obj.data[i].price
+                    }
+                    // Add the flight to the flight list
+                    flights.push(flight);
                 }
 
-                // Add the flight to the flight list
-                flights.push(flight);
+                // Add table to the html
+                const table = createTableFromObjects(flights);
+                const tableContainer = document.getElementById('flights-container');
+                tableContainer.appendChild(table);
             }
-
-            console.log(flights);
         }
 
         //Build the URL string
@@ -238,13 +285,17 @@ function FlightSearch() {
             }});
     }
 
+    function convertString(string){
+        return string.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    };
+
     this.doCodes = function() {
 
         function onSuccess(obj) {
             console.log(obj);
 
             for (let i = 0; i < obj.locations.length; i++) {
-                var auto_entry = obj.locations[i].city.name + " (" + 
+                var auto_entry = convertString(obj.locations[i].city.name) + " (" + 
                 obj.locations[i].code + "), " + obj.locations[i].city.country.name;
                 autocomplete_list.push(auto_entry);
                 location_dictionary[auto_entry] = {code: obj.locations[i].code,
