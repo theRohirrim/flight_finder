@@ -142,4 +142,13 @@ h1 {
     background-color: DodgerBlue !important;
     color: #ffffff;
   }
-  
+
+/* max height and add scrollbar to autocomplete */
+.autocomplete-items {
+    max-height: 15em;
+    overflow-y: auto;
+    /* prevent horizontal scrollbar */
+    overflow-x: hidden;
+    /* add padding to account for vertical scrollbar */
+    padding-right: 0.9em;
+} 

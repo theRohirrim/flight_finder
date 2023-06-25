@@ -212,30 +212,27 @@ function FlightSearch() {
     }
 
     this.doCodes = function() {
-        var myObj;
-        // Import codes from separate file
-        fetch("js/airport_codes.json")
-        .then((res) => res.text())
-        .then((text) => {
-            myObj = JSON.stringify(text);
-            // Run parse twice because text is 'over stringified'
-            myObj = JSON.parse(myObj);
-            myObj = JSON.parse(myObj);
 
-            // Extract all codes and enter them into global variable for autocomplete
-            for (let i = 0; i < myObj.length; i++ ) {
-                var auto_string = myObj[i].Airport + " (" + myObj[i].Code +
-                "), " + myObj[i].Country;
-                autocomplete_list.push(auto_string); 
+        function onSuccess(obj) {
+            console.log(obj);
+
+            for (let i = 0; i < obj.locations.length; i++) {
+                var auto_entry = obj.locations[i].city.name + " (" + 
+                obj.locations[i].code + "), " + obj.locations[i].city.country.name;
+                autocomplete_list.push(auto_entry);
             }
             console.log(autocomplete_list);
-        })
-        .catch((e) => console.error(e));
+        }
+
+        //Build the locations URL string
+        var searchUrl = BASE_GET_URL + '/locations/dump?locale=en-US&location_types=airport&limit=10000&sort=name&active_only=true';
+        
+         $.ajax(searchUrl, {type: "GET", data: {}, headers: {apikey: API_KEY}, success: onSuccess});
+
     }
 
     // Set listener to search button to activate search
     document.getElementById("search_button").addEventListener("click", doSearch); 
 }
 var autocomplete_list = [];
-
-var autocomplete_test = ['Apple', 'Banana', 'Cherry', 'Coke', 'Deez Nuts'];
+var location_dictionary = {};
