@@ -179,8 +179,7 @@ th, td {
 td {
     text-align: center;
 }
-
-.flight-container {
-    max-height: calc(100vh - 20em);
-    overflow-y: scroll;
+.flights-container {
+    max-height: 80vh;
+    overflow-y: auto;
 }

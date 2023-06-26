@@ -182,8 +182,6 @@ function FlightSearch() {
         var depart = document.getElementById("depart").value;
         var arrive = document.getElementById("arrive").value;
         var date = document.getElementById("datePicker").value;
-        console.log(date);
-        console.log(new Date());
         var limit = document.getElementById("limit_num").value;
         // Get the next day's date & convert format
         var tomorrow = convertDateFormat(incrementDate(date));
@@ -226,6 +224,7 @@ function FlightSearch() {
         // what to do on successful request
         function onSuccess(obj) {
             var flights = [];
+            console.log(obj);
 
             if (obj.data.length == 0) {
                 // alert the user if there were no results
@@ -238,16 +237,19 @@ function FlightSearch() {
             } else {
                 // create an entry for each flight up to the limit specified
                 for (let i = 0; i < limit; i++) {
-                    var flight = {
-                        route: obj.data[i].cityFrom + " (" + obj.data[i].flyFrom +
-                         ") to " + obj.data[i].cityTo + " (" + obj.data[i].flyTo + ")",
-                        depart: obj.data[i].local_departure,
-                        arrive: obj.data[i].local_arrival,
-                        duration: obj.data[i].duration.departure,
-                        cost: obj.data[i].price
+                    // Create a flight entry if it exists
+                    if (obj.data[i]) {
+                        var flight = {
+                            route: obj.data[i].cityFrom + " (" + obj.data[i].flyFrom +
+                             ") to " + obj.data[i].cityTo + " (" + obj.data[i].flyTo + ")",
+                            depart: obj.data[i].local_departure,
+                            arrive: obj.data[i].local_arrival,
+                            duration: obj.data[i].duration.departure,
+                            cost: obj.data[i].price
+                        }
+                        // Add the flight to the flight list
+                        flights.push(flight);
                     }
-                    // Add the flight to the flight list
-                    flights.push(flight);
                 }
 
                 // Add table to the html
@@ -264,7 +266,7 @@ function FlightSearch() {
          // Catch errors on the inputs
          if (depart == arrive) {
             alert("You cannot have departure and arrival locations be the same.");
-         } else if (new Date(document.getElementById("datePicker").value) < new Date()) {
+         } else if (new Date(document.getElementById("datePicker").value) < new Date().setUTCHours(0,0,0,0)) {
             alert("You cannot pick a date which is in the past.");
          } else {
             // do ajax call and set loader to active before being turned off at the completion of the call
@@ -285,22 +287,86 @@ function FlightSearch() {
     };
 
     this.doCodes = function() {
-
-        function onSuccess(obj) {
-
+        // AIRPORT LOCATION DATA
+        function onAiportSuccess(obj) {
+            // Go through list of codes
             for (let i = 0; i < obj.locations.length; i++) {
                 var auto_entry = convertString(obj.locations[i].city.name) + " (" + 
                 obj.locations[i].code + "), " + obj.locations[i].city.country.name;
+                // Add each entry to autocomplete list
                 autocomplete_list.push(auto_entry);
+                // Add each entry to lookup dictionary
                 location_dictionary[auto_entry] = {code: obj.locations[i].code,
                 type: obj.locations[i].type}
             }
         }
 
-        //Build the locations URL string
-        var searchUrl = BASE_GET_URL + '/locations/dump?locale=en-US&location_types=airport&limit=10000&sort=name&active_only=true';
+        //Build the airport locations URL string
+        var searchAirUrl = BASE_GET_URL + '/locations/dump?locale=en-US&location_types=airport&limit=15000&sort=name&active_only=true';
         
-         $.ajax(searchUrl, {type: "GET", data: {}, headers: {apikey: API_KEY}, success: onSuccess});
+        $.ajax(searchAirUrl, {type: "GET", data: {}, headers: {apikey: API_KEY}, success: onAiportSuccess});
+
+
+        // CITY LOCATION DATA
+        function onCitySuccess(obj) {
+            // Go through list of codes
+            for (let i = 0; i < obj.locations.length; i++) {
+                // Only add if city has more than one airport
+                if (obj.locations[i].airports > 1) {
+                    console.log(obj.locations[i].name + " aiports: " + obj.locations[i].airports);
+                    var auto_entry = convertString(obj.locations[i].name) + " (All Aiports), " + 
+                    obj.locations[i].country.name;
+                    // Add each entry to autocomplete list
+                    autocomplete_list.push(auto_entry);
+                    // Add each entry to lookup dictionary
+                    location_dictionary[auto_entry] = {code: obj.locations[i].id,
+                    type: obj.locations[i].type}
+                }
+            }
+        }
+
+        //Build the city locations URL string
+        var searchCityUrl = BASE_GET_URL + '/locations/dump?locale=en-US&location_types=city&limit=15000&sort=name&active_only=true';
+        
+        $.ajax(searchCityUrl, {type: "GET", data: {}, headers: {apikey: API_KEY}, success: onCitySuccess});
+
+
+        // REGION LOCATION DATA
+        function onRegionSuccess(obj) {
+            // Go through list of codes
+            for (let i = 0; i < obj.locations.length; i++) {
+                var auto_entry = convertString(obj.locations[i].name) + " (Region)";
+                // Add each entry to autocomplete list
+                autocomplete_list.push(auto_entry);
+                // Add each entry to lookup dictionary                    
+                location_dictionary[auto_entry] = {code: obj.locations[i].id,
+                    type: obj.locations[i].type}
+            }
+        }
+
+        //Build the region locations URL string
+        var searchRegionUrl = BASE_GET_URL + '/locations/dump?locale=en-US&location_types=region&limit=15000&sort=name&active_only=true';
+        
+        $.ajax(searchRegionUrl, {type: "GET", data: {}, headers: {apikey: API_KEY}, success: onRegionSuccess});
+
+
+        // CONTINENT LOCATION DATA
+        function onContinentSuccess(obj) {
+            // Go through list of codes
+            for (let i = 0; i < obj.locations.length; i++) {
+                var auto_entry = convertString(obj.locations[i].name) + " (Continent)";
+                // Add each entry to autocomplete list
+                autocomplete_list.push(auto_entry);
+                // Add each entry to lookup dictionary                    
+                location_dictionary[auto_entry] = {code: obj.locations[i].id,
+                    type: obj.locations[i].type}
+            }
+        }
+
+        //Build the city locations URL string
+        var searchContinentUrl = BASE_GET_URL + '/locations/dump?locale=en-US&location_types=continent&limit=15000&sort=name&active_only=true';
+        
+        $.ajax(searchContinentUrl, {type: "GET", data: {}, headers: {apikey: API_KEY}, success: onContinentSuccess});
 
     }
 
