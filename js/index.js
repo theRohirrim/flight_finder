@@ -174,6 +174,18 @@ function FlightSearch() {
         const newDateString = reversedArray.join("/");
         return newDateString;
     }
+
+    function startLoader() {
+        // Starts the loader image to signify to user results are incoming
+        var img = document.getElementsByClassName('loader')[0];
+        img.style.display = "";
+    }
+
+    function stopLoader() {
+        // Removes the loader image
+        var img = document.getElementsByClassName('loader')[0];
+        img.style.display = "none";;
+    }
     
 
     // Initiate a search call to the API with included inputs
@@ -224,19 +236,18 @@ function FlightSearch() {
         // what to do on successful request
         function onSuccess(obj) {
             var flights = [];
-            console.log(obj);
 
             if (obj.data.length == 0) {
                 // alert the user if there were no results
                 if (obj.data.length == 0) {
                     alert("There were no results for your search");
                     // remove the loading icon if its still going
-                    var img = document.getElementsByClassName('loader')[0];
-                    img.style.display = "none";;
+                    stopLoader();
                 }
             } else {
-                // create an entry for each flight up to the limit specified
-                for (let i = 0; i < limit; i++) {
+                // create an entry for each flight up to a bit lower than 
+                // the limit specified
+                for (let i = 0; i < Math.round(limit/1.5); i++) {
                     // Create a flight entry if it exists
                     if (obj.data[i]) {
                         var flight = {
@@ -266,19 +277,86 @@ function FlightSearch() {
          // Catch errors on the inputs
          if (depart == arrive) {
             alert("You cannot have departure and arrival locations be the same.");
+            stopLoader();
          } else if (new Date(document.getElementById("datePicker").value) < new Date().setUTCHours(0,0,0,0)) {
             alert("You cannot pick a date which is in the past.");
-         } else {
+            stopLoader();
+         } else if (depart == "Everywhere") {
+            // Do list of ajax calls if departure is everywhere
+
+            // Get list of all continents
+            var continent_list = []
+            for (let i in location_dictionary) {
+                if (location_dictionary[i].type == 'continent') {
+                    continent_list.push(location_dictionary[i].code);
+                }
+            }
+
+            var everywhere_flights = [];
+            // Success function for each AJAX call
+            function onEverywhereSuccess(obj) {
+                for (let i = 0; i < limit; i++) {
+                    // Create a flight entry if it exists
+                    if (obj.data[i]) {
+                        var flight = {
+                            route: obj.data[i].cityFrom + " (" + obj.data[i].flyFrom +
+                             ") to " + obj.data[i].cityTo + " (" + obj.data[i].flyTo + ")",
+                            depart: obj.data[i].local_departure,
+                            arrive: obj.data[i].local_arrival,
+                            duration: obj.data[i].duration.departure,
+                            cost: obj.data[i].price
+                        }
+                        // Add the flight to the flight list
+                        everywhere_flights.push(flight);
+                    }
+                }
+            }
+            
+            // Start the loader
+            startLoader();
+            
+            // Set up promises in which to check all ajax requests are complete
+            var promises = [];
+            // Iterate through continent list and perform AJAX call
+            for (continent in continent_list) {
+                //Build the URL string
+                var searchUrl = BASE_GET_URL + '/v2/search?' + 'fly_from=' + continent_list[continent] +
+                '&fly_to=' + location_dictionary[arrive].code + '&dateFrom=' + date + '&dateTo=' + tomorrow;
+
+                var request = $.ajax(searchUrl, {type: "GET",
+                data: {}, headers: {apikey: API_KEY}, success: onEverywhereSuccess});
+
+                // Push ajax request to the array of promises
+                promises.push(request);
+             };
+
+            $.when.apply(null, promises).done(function (){
+                if (everywhere_flights.length < 1 ) {
+                    alert("No flights could be found");
+                } else {
+                    // Sort the flight list by price
+                    everywhere_flights.sort(function(a, b) {
+                        return parseFloat(a.cost) - parseFloat(b.cost);
+                    })
+                    
+                    //Limit the size of the list of flights to the limit specified
+                    everywhere_flights = everywhere_flights.splice(0, limit);
+                    
+                    // Push the flight list onto the html table
+                    const table = createTableFromObjects(everywhere_flights);
+                    const tableContainer = document.getElementById('flights-container');
+                    tableContainer.appendChild(table);
+                }
+    
+                // Close loader
+                stopLoader();
+            })
+        } else {
             // do ajax call and set loader to active before being turned off at the completion of the call
             $.ajax(searchUrl, {type: "GET", 
-            beforeSend: function (){
-                var img = document.getElementsByClassName('loader')[0];
-                img.style.display = "";},
+            beforeSend: startLoader,
                 data: {}, headers: {apikey: API_KEY}, success: onSuccess,
-                complete: function(){
-                    var img = document.getElementsByClassName('loader')[0];
-                    img.style.display = "none";;
-                }});
+                complete: stopLoader});
          };
     };
 
@@ -313,7 +391,6 @@ function FlightSearch() {
             for (let i = 0; i < obj.locations.length; i++) {
                 // Only add if city has more than one airport
                 if (obj.locations[i].airports > 1) {
-                    console.log(obj.locations[i].name + " aiports: " + obj.locations[i].airports);
                     var auto_entry = convertString(obj.locations[i].name) + " (All Aiports), " + 
                     obj.locations[i].country.name;
                     // Add each entry to autocomplete list
@@ -367,6 +444,13 @@ function FlightSearch() {
         var searchContinentUrl = BASE_GET_URL + '/locations/dump?locale=en-US&location_types=continent&limit=15000&sort=name&active_only=true';
         
         $.ajax(searchContinentUrl, {type: "GET", data: {}, headers: {apikey: API_KEY}, success: onContinentSuccess});
+
+        // Add 'Everywhere' as a choice for departure and arrival.
+        var everywhere_entry = 'Everywhere';
+        autocomplete_list.push(everywhere_entry);
+        location_dictionary[everywhere_entry] = {code: 'anywhere',
+            type: 'anywhere'}
+
 
     }
 
