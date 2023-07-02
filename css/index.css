@@ -172,6 +172,7 @@ h1 {
 /* Table CSS to make it fit the screen nicely */
 table { 
     width: 100%;
+    user-select: text;
 }
 th, td {
     padding: 0.5em;
@@ -182,4 +183,6 @@ td {
 .flights-container {
     max-height: 80vh;
     overflow-y: auto;
+    z-index: 100;
+    user-select: text;
 }
