@@ -108,3 +108,81 @@ h1 {
         background-image:linear-gradient(to bottom, #585858 0%, #1B1B1B 51%);
     }
 }
+
+/* Autcomplete relative positioning */
+.autocomplete {
+  /*the container must be positioned relative:*/
+  position: relative;
+  display: inline-block;
+}
+
+.autocomplete-items {
+    position: absolute;
+    border: 1px solid #d4d4d4;
+    border-bottom: none;
+    border-top: none;
+    z-index: 99;
+    /*position the autocomplete items to be the same width as the container:*/
+    top: 100%;
+    left: 0;
+    right: 0;
+  }
+.autocomplete-items div {
+    padding: 10px;
+    cursor: pointer;
+    background-color: #746868;
+    border-bottom: 1px solid #d4d4d4;
+  }
+.autocomplete-items div:hover {
+    /*when hovering an item:*/
+    background-color: #f3e7e7;
+  }
+.autocomplete-active {
+    /*when navigating through the items using the arrow keys:*/
+    background-color: DodgerBlue !important;
+    color: #ffffff;
+  }
+
+/* max height and add scrollbar to autocomplete */
+.autocomplete-items {
+    max-height: 15em;
+    overflow-y: auto;
+    /* prevent horizontal scrollbar */
+    overflow-x: hidden;
+    /* add padding to account for vertical scrollbar */
+    padding-right: 0.9em;
+}
+
+/* loader css */
+.loader {
+    border: 16px solid #f3f3f3; /* Light grey */
+    border-top: 16px solid #3498db; /* Blue */
+    border-radius: 50%;
+    width: 15em;
+    height: 15em;
+    animation: spin 2s linear infinite;
+    margin: auto;
+  }
+  
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+/* Table CSS to make it fit the screen nicely */
+table { 
+    width: 100%;
+    user-select: text;
+}
+th, td {
+    padding: 0.5em;
+  }
+td {
+    text-align: center;
+}
+.flights-container {
+    max-height: 80vh;
+    overflow-y: auto;
+    z-index: 100;
+    user-select: text;
+}
