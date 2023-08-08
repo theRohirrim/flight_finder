@@ -428,8 +428,14 @@ function FlightSearch() {
         function onAiportSuccess(obj) {
             // Go through list of codes
             for (let i = 0; i < obj.locations.length; i++) {
-                var auto_entry = convertString(obj.locations[i].city.name) + " (" + 
+                // Create an entry of the airport name, and country
+                var auto_entry = convertString(obj.locations[i].name) + " (" + 
                 obj.locations[i].code + "), " + obj.locations[i].city.country.name;
+                // Check if entry has the city name, adding it if it does not
+                if (!auto_entry.toUpperCase().includes(convertString(obj.locations[i].city.name).toUpperCase())) {
+                    auto_entry = convertString(obj.locations[i].city.name) + ' ' + auto_entry;
+                }
+
                 // Add each entry to autocomplete list
                 autocomplete_list.push(auto_entry);
                 // Add each entry to lookup dictionary

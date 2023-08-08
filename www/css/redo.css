@@ -1,0 +1,74 @@
+head {
+    color: black
+}
+
+title {
+    padding: 20%;
+}
+
+body {
+    background-color: #e5e5f7;
+    opacity: 0.8;
+    background-size: 80px 80px;
+    background-position: 0 0,40px 40px;
+    color: black;
+    font-family: Arial, Helvetica, sans-serif;
+
+
+    /* Set the background colour animation */
+    background: linear-gradient(-45deg, #f4b7a5, #df739c, #7ec9e5, #73d2bc);
+    background-size: 400% 400%;
+    animation: gradient 30s ease infinite;
+    height: 100vh;
+}
+
+/* Set the background animation gradient */
+@keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+ 
+    50% {
+        background-position: 100% 50%;
+    }
+ 
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+fieldset {
+    -webkit-border-radius: 8px;
+    -moz-border-radius: 8px;
+    border-radius: 8px;
+    background-color: white;
+    opacity: 1.0;
+
+    display: flex;
+    flex-direction: row;
+    }
+    
+legend {
+    background: rgb(193, 192, 236);
+    border: solid 1px black;
+    -webkit-border-radius: 8px;
+    -moz-border-radius: 8px;
+    border-radius: 8px;
+    padding: 6px;
+}
+
+.locations {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.dates {
+    float: flex;
+    justify-content: space-evenly;
+}
+
+.other-options {
+    float: flex;
+    justify-content: space-evenly;
+}
+
