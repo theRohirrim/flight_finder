@@ -12,7 +12,7 @@ body {
     background-size: 80px 80px;
     background-position: 0 0,40px 40px;
     color: black;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: Verdana, sans-serif;
 
 
     /* Set the background colour animation */
@@ -59,6 +59,10 @@ legend {
     -moz-border-radius: 8px;
     border-radius: 8px;
     padding: 6px;
+
+    font-family: didot, serif;
+    font-weight: bold;
+    font-style: italic;
 }
 
 .locations {
@@ -66,58 +70,163 @@ legend {
     display: flex;
     padding: 0.5rem;
     position: relative;
+
+    justify-content: space-around;
+
+    border-radius: 15% 100% 15% 100% / 56% 1% 56% 1%;
 }
 
 .autocomplete {
     display: grid;
-}
-
-#departure {
-    background-color: #73d2bc;
-    float: left;
-    padding-left: 10%;
-}
-
-#arrival {
-    background-color: blue;
-    padding-left: 35%;
+    background-image: linear-gradient(-20deg, #00cdac 0%, #8ddad5 100%);
 
 }
 
 
 .dates {
-    background-color: aliceblue;
+    background-color: rgb(203, 223, 241);
     display: flex;
     padding: 0.5rem;
     position: relative;
+    justify-content: space-around;
+    border-radius: 100% 15% 100% 15% / 1% 56% 1% 56%;
 }
-
 
 .date {
     display: grid;
-    background-color: #f4b7a5;
+    background-image: linear-gradient(to right, rgb(242, 112, 156), rgb(255, 148, 114));
 }
 
 #date_depart {
-    background-color: yellow;
     float: left;
-    padding-left: 10%;
-}
-
-#return_bool {
-    background-color: chocolate;
-    padding-left: 15%;
-}
-
-#date_return {
-    background-color: blueviolet;
-    padding-left: 13%;
 }
 
 .other-options {
     display: flex;
-    justify-content: space-evenly;
     background-color: #df739c;
+    position: relative;
     padding: 0.5rem;
+
+    justify-content: space-around;
+    align-items: flex-start;
+    border-radius: 15% 100% 15% 100% / 56% 1% 56% 1%;
 }
 
+.option {
+    background-image: linear-gradient(25deg,#d64c7f,#ee4758 50%);
+    display: grid
+
+    
+}
+
+.box {
+    position: relative;
+    border-radius: 0% 0% 0% 0% / 0% 0% 0% 0% ;
+    box-shadow: 0.5em 0.5em rgba(0,0,0,.15);
+    transition: all .4s ease;
+
+}
+
+.box:not(#search) {
+    border-radius: 0.5em;
+    padding: 0.2em;
+}
+
+.box:hover {
+    border-radius: 0% 0% 50% 50% / 0% 0% 5% 5% ;
+    box-shadow: 10px 10px rgba(0,0,0,.25);
+}
+
+input[type="text"], input[type="date"], 
+input[type="checkbox"], input[type="number"],
+input[type="range"] {
+    background-color: #092e26;
+    border-radius: 0.5em;
+    color: aliceblue;
+}
+
+input[type="button"]{
+    background-color: #1c869c;
+    border-radius: 0.5em;
+    padding: 0.2em;
+
+    font-size: 1.1em;
+
+}
+
+#search {
+    background-color: #092e26;
+    border-radius: 0.5em;
+}
+
+select {
+    background-color: #092e26;
+    border-radius: 0.5em;
+}
+
+::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+    color: white;
+    opacity: 1; /* Firefox */
+}
+  
+
+/* Media queries to adjust the sizes of the display on different
+screen sizes */
+/* For smaller phones */
+@media screen and (max-width: 400px) {
+    .locations, .dates, .other-options {
+        font-size: 12px;
+    }
+
+    input[type="text"], input[type="date"], 
+    input[type="checkbox"], input[type="number"],
+    input[type="range"] {
+        width: 70%;
+    }
+
+    select {
+        width: 90%;
+    }
+}
+
+/* For larger than tablets but smaller than 4k desktops */
+@media screen and (min-width: 900px) {
+    .locations, .dates, .other-options {
+        font-size: 16px;
+    }
+
+    input[type="text"], input[type="date"], 
+    input[type="checkbox"], input[type="number"],
+    input[type="range"] {    
+        font-size: 16px;
+    }
+
+    select {
+        font-size: 16px;
+    }
+
+    input[type="button"]{
+        font-size: 1.3em;
+    }
+}
+
+/* For large laptops and desktops */
+@media screen and (min-width: 1400px) {
+    .locations, .dates, .other-options {
+        font-size: 20px;
+    }
+
+    input[type="text"], input[type="date"], 
+    input[type="checkbox"], input[type="number"],
+    input[type="range"] {    
+        font-size: 20px;
+    }
+
+    select {
+        font-size: 20px;
+    }
+
+    input[type="button"]{
+        font-size: 1.5em;
+    }
+}

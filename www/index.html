@@ -16,58 +16,58 @@
         <h1>Flight Finder</h1>
         <form autocomplete="off">
             <fieldset>
-                <legend>Begin your search</legend>
+                <legend>Find your next escape</legend>
 
                 <span class="locations">
                     <!-- FR1 Departure Location w/ autocomplete -->
-                    <div class="autocomplete" id="departure">
-                        <label>From:</label>
+                    <div class="box autocomplete" id="departure">
+                        <label>From</label>
                         <input id="depart" type="text" placeholder="Pick a location">
                     </div>
 
                     <!-- FR2 Arrival Location w/ autocomplete -->
-                    <div class="autocomplete" id="arrival">
-                        <label>To:</label>
+                    <div class="box autocomplete" id="arrival">
+                        <label>To</label>
                         <input id="arrive" type="text" placeholder="Pick a location">
                     </div>
                 </span>
 
                 <span class="dates">
                     <!-- FR3 Departure Date Select-->                                                         <!-- Josh Holt H740671X -->
-                    <div class="date" id="date_depart">
-                        <label>Departure Date:</label>
+                    <div class="box date" id="date_depart">
+                        <label>Departure Date</label>
                         <input id="departure_calendar" type="date" placeholder="Choose a departure date">
                     </div>
 
-                    <div class="date" id="return_bool">
+                    <div class="box date" id="return_bool">
                         <input type="checkbox" id="return" value="true">
                         <label for="return">Return Flight</label>
                     </div>
 
                     <!-- FR7 Return Date Select -->
-                    <div class="date" id="date_return">
-                        <label>Return Date:</label>
+                    <div class="box date" id="date_return">
+                        <label>Return Date</label>
                         <input id="return_calendar" type="date" placeholder="Leave clear to search one-way flights">
                     </div>
                 </span>
 
                 <span class="other-options">
                     <!-- Limit the number of returned results-->
-                    <label>Number of Results:</label>
-                    <div id="limit">
+                    <div class="box option" id="limit">
+                        <label>Number of Results</label>
                         <input id="limit_num" type="number" value="20" min="10" max="50" step="5">
                     </div>
 
                     <!-- Limit returned results by their price-->
-                    <label>Price Limit:</label>
-                    <div id="price_limit">
+                    <div class="box option" id="price_limit">
+                        <label>Price Limit</label>
                         <input id="limit_price" type="range" value="2000" min="30" max="2000" step="10">
                         <p id="price_input">No Limit</p>
                     </div>
 
                     <!-- FR17 Max number of stopovers -->
-                    <label for="stop_limit">Max stops</label>
-                    <div id="max_stops">
+                    <div class="box option" id="max_stops">
+                        <label for="stop_limit">Max stops</label>
                         <select name="stop_limit">
                             <option value="0">Direct Flight</option>
                             <option value="1">1</option>
@@ -77,8 +77,8 @@
                     </div>
 
                     <!-- FR4 Search button -->
-                    <div id="search">
-                        <input id="search_button" type="button" value="Search">
+                    <div class="box option" id="search">
+                        <input name="search_button" type="button" value="Search">
                     </div>
                 </span>
                 
