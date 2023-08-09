@@ -18,31 +18,36 @@
             <fieldset>
                 <legend>Begin your search</legend>
 
-                <span class="locations"">
+                <span class="locations">
                     <!-- FR1 Departure Location w/ autocomplete -->
-                    <div class="autocomplete">
-                        <label>Depart:</label>
+                    <div class="autocomplete" id="departure">
+                        <label>From:</label>
                         <input id="depart" type="text" placeholder="Pick a location">
                     </div>
 
                     <!-- FR2 Arrival Location w/ autocomplete -->
-                    <div class="autocomplete">
-                        <label>Arrive:</label>
+                    <div class="autocomplete" id="arrival">
+                        <label>To:</label>
                         <input id="arrive" type="text" placeholder="Pick a location">
                     </div>
                 </span>
 
                 <span class="dates">
                     <!-- FR3 Departure Date Select-->                                                         <!-- Josh Holt H740671X -->
-                    <label>Departure Date:</label>
-                    <div class="date">
-                        <input id="departure_date" type="date" placeholder="Choose a departure date">
+                    <div class="date" id="date_depart">
+                        <label>Departure Date:</label>
+                        <input id="departure_calendar" type="date" placeholder="Choose a departure date">
+                    </div>
+
+                    <div class="date" id="return_bool">
+                        <input type="checkbox" id="return" value="true">
+                        <label for="return">Return Flight</label>
                     </div>
 
                     <!-- FR7 Return Date Select -->
-                    <label>Return Date:</label>
-                    <div class="date">
-                        <input id="return_date" type="date" placeholder="Leave clear to search one-way flights">
+                    <div class="date" id="date_return">
+                        <label>Return Date:</label>
+                        <input id="return_calendar" type="date" placeholder="Leave clear to search one-way flights">
                     </div>
                 </span>
 

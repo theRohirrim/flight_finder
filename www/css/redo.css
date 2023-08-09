@@ -37,6 +37,8 @@ body {
     }
 }
 
+/*Everything from here is organising the input elements in the
+fieldset */
 fieldset {
     -webkit-border-radius: 8px;
     -moz-border-radius: 8px;
@@ -44,10 +46,12 @@ fieldset {
     background-color: white;
     opacity: 1.0;
 
-    display: flex;
-    flex-direction: row;
-    }
-    
+    position: relative;
+    gap: 1rem;
+    padding: 0.25rem;
+
+}
+
 legend {
     background: rgb(193, 192, 236);
     border: solid 1px black;
@@ -58,17 +62,62 @@ legend {
 }
 
 .locations {
+    background-color: #7ec9e5;
     display: flex;
-    justify-content: space-evenly;
+    padding: 0.5rem;
+    position: relative;
 }
 
+.autocomplete {
+    display: grid;
+}
+
+#departure {
+    background-color: #73d2bc;
+    float: left;
+    padding-left: 10%;
+}
+
+#arrival {
+    background-color: blue;
+    padding-left: 35%;
+
+}
+
+
 .dates {
-    float: flex;
-    justify-content: space-evenly;
+    background-color: aliceblue;
+    display: flex;
+    padding: 0.5rem;
+    position: relative;
+}
+
+
+.date {
+    display: grid;
+    background-color: #f4b7a5;
+}
+
+#date_depart {
+    background-color: yellow;
+    float: left;
+    padding-left: 10%;
+}
+
+#return_bool {
+    background-color: chocolate;
+    padding-left: 15%;
+}
+
+#date_return {
+    background-color: blueviolet;
+    padding-left: 13%;
 }
 
 .other-options {
-    float: flex;
+    display: flex;
     justify-content: space-evenly;
+    background-color: #df739c;
+    padding: 0.5rem;
 }
 
