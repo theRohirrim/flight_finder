@@ -16,7 +16,7 @@ body {
 
 
     /* Set the background colour animation */
-    background: linear-gradient(-45deg, #f4b7a5, #df739c, #7ec9e5, #73d2bc);
+    background: linear-gradient(-45deg, #c3e3f5, #D5F3FE, #7ec9e5, #73d2bc);
     background-size: 400% 400%;
     animation: gradient 30s ease infinite;
     height: 100vh;
@@ -65,8 +65,9 @@ legend {
     font-style: italic;
 }
 
+/* First row of options - From and To */
 .locations {
-    background-color: #7ec9e5;
+    background-image: linear-gradient(-20deg, #D5F3FE 0%, #8ddad5 100%);
     display: flex;
     padding: 0.5rem;
     position: relative;
@@ -76,15 +77,64 @@ legend {
     border-radius: 15% 100% 15% 100% / 56% 1% 56% 1%;
 }
 
+/* Actual option boxes */
 .autocomplete {
     display: grid;
-    background-image: linear-gradient(-20deg, #00cdac 0%, #8ddad5 100%);
+    background-image: linear-gradient(to right, rgb(242, 112, 156), rgb(255, 148, 114));
 
 }
 
+/* Autcomplete relative positioning */
+  
+.autocomplete-items {
+      position: absolute;
+      border-bottom: none;
+      border-top: none;
+      z-index: 99;
+      /*position the autocomplete items to be the same width as the container:*/
+      top: 100%;
+      left: 0;
+      right: 0;
+}
+.autocomplete-items div {
+      padding: 10px;
+      cursor: pointer;
+      background-color: rgb(193, 192, 236);
+      border-bottom: 1px solid #d4d4d4;
+      border-radius: 0.5em;
+      padding: 0.2em;
+    }
+.autocomplete-items div:hover {
+      /*when hovering an item:*/
+      background-color: #f3e7e7;
+}
+.autocomplete-active {
+      /*when navigating through the items using the arrow keys:*/
+      background-color: DodgerBlue !important;
+      color: #ffffff;
+}
+  
+/* max height and add scrollbar to autocomplete */
+.autocomplete-items {
+      max-height: 15em;
+      overflow-y: auto;
+      /* prevent horizontal scrollbar */
+      overflow-x: hidden;
+      /* add padding to account for vertical scrollbar */
+      padding-right: 0.9em;
+}
 
+/* The active autocomplete item */
+.autocomplete-active {
+
+    background-image: linear-gradient(-20deg, #60737b 0%, #648d8b 100%);
+    border-radius: 0.5em;
+    padding: 0.2em;
+}
+
+/* Second row of options - Depart date, return flight, and return date */
 .dates {
-    background-color: rgb(203, 223, 241);
+    background-image: linear-gradient(-20deg, #D5F3FE 0%, #8ddad5 100%);
     display: flex;
     padding: 0.5rem;
     position: relative;
@@ -92,6 +142,7 @@ legend {
     border-radius: 100% 15% 100% 15% / 1% 56% 1% 56%;
 }
 
+/* Second row option boxes */
 .date {
     display: grid;
     background-image: linear-gradient(to right, rgb(242, 112, 156), rgb(255, 148, 114));
@@ -101,9 +152,10 @@ legend {
     float: left;
 }
 
+/* Third row of options - No. of results, price limit, max stops, search button */
 .other-options {
     display: flex;
-    background-color: #df739c;
+    background-image: linear-gradient(-20deg, #D5F3FE 0%, #8ddad5 100%);
     position: relative;
     padding: 0.5rem;
 
@@ -112,13 +164,15 @@ legend {
     border-radius: 15% 100% 15% 100% / 56% 1% 56% 1%;
 }
 
+/* Third row option boxes */
 .option {
-    background-image: linear-gradient(25deg,#d64c7f,#ee4758 50%);
+    background-image: linear-gradient(to right, rgb(242, 112, 156), rgb(255, 148, 114));
     display: grid
 
     
 }
 
+/* Each option box */
 .box {
     position: relative;
     border-radius: 0% 0% 0% 0% / 0% 0% 0% 0% ;
