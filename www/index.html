@@ -9,6 +9,11 @@
         <link rel="stylesheet" href="css/redo.css">
 
         <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+        <!-- Added references to make the date range picker work -->
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+
         <title>Flight Finder</title>
     </head>
     <body>
@@ -21,13 +26,13 @@
                     <!-- FR1 Departure Location w/ autocomplete -->
                     <div class="box autocomplete" id="departure">
                         <label>From</label>
-                        <input id="depart" type="text" placeholder="Pick a location">
+                        <input id="depart" type="text" placeholder="e.g. Everywhere">
                     </div>
 
                     <!-- FR2 Arrival Location w/ autocomplete -->
                     <div class="box autocomplete" id="arrival">
                         <label>To</label>
-                        <input id="arrive" type="text" placeholder="Pick a location">
+                        <input id="arrive" type="text" placeholder="e.g. Everywhere">
                     </div>
                 </span>
 
@@ -35,7 +40,7 @@
                     <!-- FR3 Departure Date Select-->                                                         <!-- Josh Holt H740671X -->
                     <div class="box date" id="date_depart">
                         <label>Departure Date</label>
-                        <input id="departure_calendar" type="date" placeholder="Choose a departure date">
+                        <input id="departure_calendar" type="text" name="dates">
                     </div>
 
                     <div class="box date" id="return_bool">
@@ -46,7 +51,7 @@
                     <!-- FR7 Return Date Select -->
                     <div class="box date" id="date_return">
                         <label>Return Date</label>
-                        <input id="return_calendar" class="disabled" type="hidden" disabled="true" >
+                        <input id="return_calendar" class="disabled" type="hidden" disabled="true" name="dates">
                     </div>
                 </span>
 

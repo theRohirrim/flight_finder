@@ -19,7 +19,14 @@ function onDeviceReady() {
     //document.getElementById('datePicker').valueAsDate = new Date();
 
     // Get the location codes and add them to autocomplete list
-    controller.doCodes();
+    controller.doCodes(autocomplete_list, location_dictionary);
+
+    //Set the dange range picker on the inputs
+    $('input[name="dates"]').daterangepicker({
+        locale: {
+            format: 'DD/MM/YYYY'
+        }
+    });
 
     
     // Set up autcomplete for text input fields
@@ -133,11 +140,11 @@ function FlightSearch() {
     }
     
     // Removes all accented characters from a string
-    function convertString(string){
+    function convertString(string) {
         return string.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     };
 
-    this.doCodes = function() {
+    this.doCodes = function(location_list, location_dictionary) {
         // AIRPORT LOCATION DATA
         function onAiportSuccess(obj) {
             // Go through list of codes
@@ -151,7 +158,7 @@ function FlightSearch() {
                 }
 
                 // Add each entry to autocomplete list
-                autocomplete_list.push(auto_entry);
+                location_list.push(auto_entry);
                 // Add each entry to lookup dictionary
                 location_dictionary[auto_entry] = {code: obj.locations[i].code,
                 type: obj.locations[i].type}
@@ -167,7 +174,7 @@ function FlightSearch() {
                     var auto_entry = convertString(obj.locations[i].name) + " (All Aiports), " + 
                     obj.locations[i].country.name;
                     // Add each entry to autocomplete list
-                    autocomplete_list.push(auto_entry);
+                    location_list.push(auto_entry);
                     // Add each entry to lookup dictionary
                     location_dictionary[auto_entry] = {code: obj.locations[i].id,
                     type: obj.locations[i].type}
@@ -181,7 +188,7 @@ function FlightSearch() {
             for (let i = 0; i < obj.locations.length; i++) {
                 var auto_entry = convertString(obj.locations[i].name) + " (Country)";
                 // Add each entry to autocomplete list
-                autocomplete_list.push(auto_entry);
+                location_list.push(auto_entry);
                 // Add each entry to lookup dictionary                    
                 location_dictionary[auto_entry] = {code: obj.locations[i].id,
                     type: obj.locations[i].type}
@@ -194,7 +201,7 @@ function FlightSearch() {
             for (let i = 0; i < obj.locations.length; i++) {
                 var auto_entry = convertString(obj.locations[i].name) + " (Region)";
                 // Add each entry to autocomplete list
-                autocomplete_list.push(auto_entry);
+                location_list.push(auto_entry);
                 // Add each entry to lookup dictionary                    
                 location_dictionary[auto_entry] = {code: obj.locations[i].id,
                     type: obj.locations[i].type}
@@ -207,7 +214,7 @@ function FlightSearch() {
             for (let i = 0; i < obj.locations.length; i++) {
                 var auto_entry = convertString(obj.locations[i].name) + " (Continent)";
                 // Add each entry to autocomplete list
-                autocomplete_list.push(auto_entry);
+                location_list.push(auto_entry);
                 // Add each entry to lookup dictionary                    
                 location_dictionary[auto_entry] = {code: obj.locations[i].id,
                     type: obj.locations[i].type}
@@ -233,11 +240,9 @@ function FlightSearch() {
 
         // FR2 Add 'Everywhere' as a choice for departure and arrival.
         var everywhere_entry = 'Everywhere';
-        autocomplete_list.push(everywhere_entry);
+        location_list.push(everywhere_entry);
         location_dictionary[everywhere_entry] = {code: 'anywhere',
             type: 'anywhere'};
-        
-        console.log(autocomplete_list)
     }
 
     this.disableDate = function() {
@@ -247,7 +252,7 @@ function FlightSearch() {
 
         if (return_checkbox.checked) {
             date_input.disabled = false
-            date_input.type = "date"
+            date_input.type = "text"
         } else {
             date_input.disabled = true
             date_input.type = "hidden"
@@ -256,12 +261,41 @@ function FlightSearch() {
         date_input;
     }
 
-    this.subtract = function(a,b) {
-        return a - b;
+    // Create table function to insert into the html with the appropriate results, from StackDiary.com @ https://stackdiary.com/tutorials/create-table-javascript/
+    function createTableFromObjects(data) {
+        // clear the container of any current content or table
+        const container = document.getElementById('flights-container');
+        if (container.childNodes.length > 0){
+            container.replaceChildren();
+        }
+
+        const table = document.createElement('table');
+        const headerRow = document.createElement('tr');
+        
+        // Create table header row
+        const keys = Object.keys(data[0]);
+        for (const key of keys) {
+          const headerCell = document.createElement('th');
+          headerCell.textContent = key;
+          headerRow.appendChild(headerCell);
+        }
+        table.appendChild(headerRow);
+      
+        // Create table data rows
+        for (const obj of data) {
+          const dataRow = document.createElement('tr');
+          for (const key of keys) {
+            const dataCell = document.createElement('td');
+            dataCell.textContent = obj[key];
+            dataRow.appendChild(dataCell);
+          }
+          table.appendChild(dataRow);
+        }
+      
+        return table;
     }
 }
 var autocomplete_list = [];
-const arr = ['Apple', 'Banana', 'Cherry', 'Coke', 'Zebra', 'Zealand'];
 var location_dictionary = {};
 
 module.exports = {FlightSearch: FlightSearch};
