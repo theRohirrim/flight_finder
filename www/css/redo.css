@@ -227,6 +227,35 @@ select {
     color: white;
     opacity: 1; /* Firefox */
 }
+
+
+
+/* For the flight container and children nodes showing results */
+
+#flights-container {
+    background-color: #D5F3FE;
+    display: flexbox;
+}
+
+.headerRow {
+    background-color: #648d8b;
+}
+
+.headerCell {
+    background-color: azure;
+}
+
+.tableRow {
+    padding: 0.2em;
+    background-color: blanchedalmond;
+    justify-content: center;
+}
+
+.tableCell {
+    padding: 0.2em;
+    background-color: honeydew;
+    justify-content: center;
+}
   
 
 /* Media queries to adjust the sizes of the display on different

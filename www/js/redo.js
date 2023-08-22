@@ -33,6 +33,11 @@ function onDeviceReady() {
     controller.autocomplete(document.getElementById('depart'), autocomplete_list);
     controller.autocomplete(document.getElementById('arrive'), autocomplete_list);
 
+    // Add table to the html
+    const table = controller.createTableFromObjects(flights);
+    const tableContainer = document.getElementById('flights-container');
+    tableContainer.appendChild(table);
+
 }
 
 function FlightSearch() {
@@ -246,7 +251,6 @@ function FlightSearch() {
     }
 
     this.disableDate = function() {
-        console.log("it recognises")
         var return_checkbox = document.querySelector('#return');
         var date_input = document.getElementById('return_calendar');
 
@@ -262,7 +266,7 @@ function FlightSearch() {
     }
 
     // Create table function to insert into the html with the appropriate results, from StackDiary.com @ https://stackdiary.com/tutorials/create-table-javascript/
-    function createTableFromObjects(data) {
+    this.createTableFromObjects = function(data) {
         // clear the container of any current content or table
         const container = document.getElementById('flights-container');
         if (container.childNodes.length > 0){
@@ -271,6 +275,8 @@ function FlightSearch() {
 
         const table = document.createElement('table');
         const headerRow = document.createElement('tr');
+        // Add class to the header row
+        headerRow.classList.add('headerRow');
         
         // Create table header row
         const keys = Object.keys(data[0]);
@@ -278,15 +284,21 @@ function FlightSearch() {
           const headerCell = document.createElement('th');
           headerCell.textContent = key;
           headerRow.appendChild(headerCell);
+          // Add class to the header cells
+          headerCell.classList.add('headerCell');
         }
         table.appendChild(headerRow);
       
         // Create table data rows
         for (const obj of data) {
           const dataRow = document.createElement('tr');
+          // Add class to the table row
+          dataRow.classList.add('tableRow');
           for (const key of keys) {
             const dataCell = document.createElement('td');
             dataCell.textContent = obj[key];
+            // Add class to the table cell
+            dataCell.classList.add('tableCell');
             dataRow.appendChild(dataCell);
           }
           table.appendChild(dataRow);
@@ -297,5 +309,56 @@ function FlightSearch() {
 }
 var autocomplete_list = [];
 var location_dictionary = {};
+
+var flights = [];
+var flight_one = {
+    route: 'Dublin (DUB) to London Stanstead (STN)',
+    stops: 'Direct',
+    depart: '23/8/2023 07:30',
+    arrive: '23/8/2023 08:50',
+    duration: '1H 20M',
+    cost: '€24'
+}
+var flight_two = {
+    route: 'Dublin (DUB) to The Sea',
+    stops: '1',
+    depart: '23/8/2023 07:30',
+    arrive: '23/8/2023 08:50',
+    duration: '1H 20M',
+    cost: '€24'
+}
+flights.push(flight_one, flight_two);
+
+var return_flights = [];
+var flights_one = [
+    {route: 'Dublin (DUB) to London Stanstead (STN)',
+    stops: 'Direct',
+    depart: '23/8/2023 07:30',
+    arrive: '23/8/2023 08:50',
+    duration: '1H 20M',
+    cost: '€24'},
+    {route: 'STANSTEAD TO SEA',
+    stops: 'Direct',
+    depart: '23/8/2023 07:30',
+    arrive: '23/8/2023 08:50',
+    duration: '1H 20M',
+    cost: '€24'}
+]
+
+var flights_two = [
+    {route: 'Dublin (DUB) to London Stanstead (STN)',
+    stops: 'Direct',
+    depart: '23/8/2023 07:30',
+    arrive: '23/8/2023 08:50',
+    duration: '1H 20M',
+    cost: '€24'},
+    {route: 'STANSTEAD TO SEA',
+    stops: 'Direct',
+    depart: '23/8/2023 07:30',
+    arrive: '23/8/2023 08:50',
+    duration: '1H 20M',
+    cost: '€24'}
+]
+return_flights.push(flights_one, flights_two);
 
 module.exports = {FlightSearch: FlightSearch};
