@@ -149,6 +149,14 @@ function FlightSearch() {
         return string.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     };
 
+    function addToLocationDictionary(obj, index) {
+        // Add each entry to lookup dictionary
+        const location = obj.locations[index];
+        location_dictionary[location.code] = {name: convertString(location.name) + " (" + 
+        location.code + ")",
+        type: location.type}
+    }
+
     this.doCodes = function(location_list, location_dictionary) {
         // AIRPORT LOCATION DATA
         function onAiportSuccess(obj) {
@@ -164,9 +172,9 @@ function FlightSearch() {
 
                 // Add each entry to autocomplete list
                 location_list.push(auto_entry);
+
                 // Add each entry to lookup dictionary
-                location_dictionary[auto_entry] = {code: obj.locations[i].code,
-                type: obj.locations[i].type}
+                addToLocationDictionary(obj, i);
             }
         }
 
@@ -181,8 +189,7 @@ function FlightSearch() {
                     // Add each entry to autocomplete list
                     location_list.push(auto_entry);
                     // Add each entry to lookup dictionary
-                    location_dictionary[auto_entry] = {code: obj.locations[i].id,
-                    type: obj.locations[i].type}
+                    addToLocationDictionary(obj, i);
                 }
             }
         }
@@ -195,8 +202,7 @@ function FlightSearch() {
                 // Add each entry to autocomplete list
                 location_list.push(auto_entry);
                 // Add each entry to lookup dictionary                    
-                location_dictionary[auto_entry] = {code: obj.locations[i].id,
-                    type: obj.locations[i].type}
+                addToLocationDictionary(obj, i);
             }
         }
 
@@ -208,8 +214,7 @@ function FlightSearch() {
                 // Add each entry to autocomplete list
                 location_list.push(auto_entry);
                 // Add each entry to lookup dictionary                    
-                location_dictionary[auto_entry] = {code: obj.locations[i].id,
-                    type: obj.locations[i].type}
+                addToLocationDictionary(obj, i);
             }
         }
 
@@ -221,8 +226,7 @@ function FlightSearch() {
                 // Add each entry to autocomplete list
                 location_list.push(auto_entry);
                 // Add each entry to lookup dictionary                    
-                location_dictionary[auto_entry] = {code: obj.locations[i].id,
-                    type: obj.locations[i].type}
+                addToLocationDictionary(obj, i);
             }
         }
 
@@ -306,7 +310,68 @@ function FlightSearch() {
       
         return table;
     }
+
+    // Test version to build the types of table displays needed
+    function doSearch() {
+        /*
+        // Get all the inputs from the HTML
+        var depart = document.getElementById("depart").value;
+        var arrive = document.getElementById("arrive").value;
+        var date = document.getElementById("datePicker").value;
+        var limit = document.getElementById("limit_num").value;
+        // Price limit becomes 'effectively infinite' if it at max value
+        var price_limit = document.getElementById("limit_price").value;
+        if (price_limit == 2000) {
+            price_limit = 50000;
+        }
+
+        // Exit function if location values are not in the list of locations
+        if (!(autocomplete_list.includes(depart) && autocomplete_list.includes(arrive))){
+            alert("Please enter correct departure and arrival locations");
+            return
+        }
+        */
+
+        var depart = 'AZ';
+        var arrive = 'MIA';
+        var date_from = '11/09/2023'
+        var date_to = '12/09/2023'
+        var return_from = '15/09/2023'
+        var return_to = '16/09/2023'
+        var limit = 20;
+
+        function onSuccess(obj) {
+            const data = obj.data
+            console.log(data)
+
+            if (data.length == 0) {
+                // Alert the user if there were no results
+                alert("There were no results for your search");
+                // TODO remove the loading icon if its still going
+                //stopLoader();
+            } else {
+                // Build entries of flights
+                // const return_entries = buildReturnEntries(data)
+            }
+        }
+
+        var searchUrl = `${BASE_GET_URL}/v2/search?fly_from=${depart}&fly_to=${arrive}&date_from=${date_from}&date_to=${date_to}&return_from=${return_from}&return_to=${return_to}&limit=100`
+
+        $.ajax(searchUrl, {type: "GET",
+                data: {}, headers: {apikey: API_KEY}, success: onSuccess});
+
+    }
+
+    function buildReturnEntries(obj) {
+        //Get outgoing route
+
+    }
+
+    // FR4 Set listener to search button to activate search
+    document.getElementById("search_button").addEventListener("click", doSearch); 
 }
+
+
 var autocomplete_list = [];
 var location_dictionary = {};
 
