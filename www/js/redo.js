@@ -269,6 +269,49 @@ function FlightSearch() {
         date_input;
     }
 
+    function makeModal(data, id) {
+        // Create container div and set id and class
+        const container = document.createElement('div');
+        container.setAttribute('id', id)
+        container.classList.add('modal')
+        // Set the container to hidden
+        container.style.display = 'none'
+
+        // Create div for modal content and add to 
+        const content_div = document.createElement('div');
+        content_div.classList.add('modal-content');
+        container.appendChild(content_div);
+
+        //Create a span with the close button
+        const span_div = document.createElement('span');
+        span_div.textContent = 'x';
+        span_div.classList.add('close');
+        content_div.appendChild(span_div);
+
+        // Create the content and append to the container
+        const p = document.createElement('p');
+        p.textContent = 'BLooAFSoFOFAOSDFSDFJKSF';
+        content_div.appendChild(p);
+        // TO DO, THE TABLE MAKING
+
+        // When user clicks on span, close the modal
+        span_div.onclick = function() {
+            container.style.display = "none";
+        }
+
+        // When user clicks anywhere outside modal, close it
+        window.onclick = function(event) {
+            if (event.target == container) {
+            container.style.display = "none";
+            }
+        }
+
+        // Attach the container to the body of the html
+        document.body.appendChild(container);
+        
+        return container;
+    }
+
     // Create table function to insert into the html with the appropriate results, from StackDiary.com @ https://stackdiary.com/tutorials/create-table-javascript/
     this.createTableFromObjects = function(data) {
         // clear the container of any current content or table
@@ -292,16 +335,47 @@ function FlightSearch() {
           headerCell.classList.add('headerCell');
         }
         table.appendChild(headerRow);
+
+        // Create a counter to create unique ID's to open correct modals
+        var id = 0;
       
         // Create table data rows
         for (const obj of data) {
           const dataRow = document.createElement('tr');
           // Add class to the table row
           dataRow.classList.add('tableRow');
+          // Add content to the cells
           for (const key of keys) {
+            // Create data cell
             const dataCell = document.createElement('td');
-            dataCell.textContent = obj[key];
-            // Add class to the table cell
+            // If the key is 'stops', then make modal or just continue
+            if (key == 'stops' && obj[key] != 'Direct') {
+                // Create button element
+                const stopsButton = document.createElement('button');
+                // Assign class and ID to modal button
+                stopsButton.classList.add('modal-button');
+                const mod_id = `modal${id}`
+                stopsButton.setAttribute("href", mod_id)
+                // Write the number of stops as the text of the button
+                stopsButton.textContent = obj[key].length;
+
+                // Make the modal content
+                const mod = makeModal(obj[key], mod_id);
+                // Open the modal when the user clicks the button
+                stopsButton.onclick = function() {
+                    console.log('recognised click');
+                    mod.style.display = "block";
+                }
+
+                // Increment the id for following modal unique ID's
+                id += 1;
+                // Add the button to the data cell
+                dataCell.appendChild(stopsButton);
+            } else {
+                // Otherwise add the content of the key to the data cell
+                dataCell.textContent = obj[key];
+            }
+            // Add class to the table cell and append to row
             dataCell.classList.add('tableCell');
             dataRow.appendChild(dataCell);
           }
@@ -309,6 +383,36 @@ function FlightSearch() {
         }
       
         return table;
+    }
+
+    // Convert date to be a nicer format for display
+    function convertNiceDate(timestamp) {
+        var date = new Date(timestamp);
+        var nice = date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear() +
+        ' ';
+        var hours = date.getHours().toString();
+        var minutes = date.getMinutes().toString();
+        if (hours.length < 2) {
+            hours = '0' + hours;
+        }
+        if (minutes.length < 2) {
+            minutes = minutes + '0';
+        }
+        return nice + hours + ':' + minutes
+    }
+
+    function convertDuration (seconds) {
+        // Takes the duration from the flight info and converts to hours and mins
+        var minutes = seconds / 60;
+        var hours = (Math.floor(minutes / 60)).toString();
+        var remainder = (minutes % 60).toString();
+
+        // Pad remainder if it is below 10
+        if (remainder.toString() < 2) {
+            remainder = '0' + remainder;
+        }
+
+        return hours + 'h ' + remainder + 'm';
     }
 
     // Test version to build the types of table displays needed
@@ -351,7 +455,7 @@ function FlightSearch() {
                 //stopLoader();
             } else {
                 // Build entries of flights
-                // const return_entries = buildReturnEntries(data)
+                // const return_entries = buildReturnEntries(data, limit)
             }
         }
 
@@ -362,8 +466,42 @@ function FlightSearch() {
 
     }
 
-    function buildReturnEntries(obj) {
-        //Get outgoing route
+    function buildReturnEntries(data, limit) {
+        // Create an empty list of flights
+        var flights = [];
+
+        // Iterate through list up to result limit
+        for (let i = 0; i < limit; i++) {
+            // Get OUTGOING 
+            // Get route
+            const out_route = `${location_dictionary[data[i].cityCodeFrom]} to ${location_dictionary[data[i].cityCodeTo]}`
+            // Get the number of stops
+            var out_stops = [];
+            // Get departure time
+            const out_depart_time = convertNiceDate(data[i].local_departure);
+            // Get arrival time
+            const out_arrival_time = convertNiceDate(data[i].local_arrival);
+            // Get duration
+            const out_duration = convertDuration(data.duration.departure);
+            // Get price
+            const out_price = data[i].price;
+
+
+            // GET RETURN
+            // Get route
+            const ret_route = `${location_dictionary[data[i].cityCodeTo]} to ${location_dictionary[data[i].cityCodeFrom]}`
+            // Get the number of stops
+            var ret_stops = [];
+            // Get departure time
+            const ret_depart_time = 0;
+            // Get arrival time
+            const ret_arrive_time = 0;
+            // Get duration
+            const ret_duration = convertDuration(data.duration.return);
+            
+
+
+        }
 
     }
 
@@ -376,6 +514,20 @@ var autocomplete_list = [];
 var location_dictionary = {};
 
 var flights = [];
+
+var fake_stops = [{
+    route: 'Dublin (DUB) to The Land',
+    depart: '23/8/2023 07:30',
+    arrive: '23/8/2023 08:50',
+    duration: '1H 20M',
+    cost: '€24'
+}, {
+    route: 'The Land to The Sea',
+    depart: '23/8/2023 07:30',
+    arrive: '23/8/2023 08:50',
+    duration: '1H 20M',
+    cost: '€24'
+}]
 var flight_one = {
     route: 'Dublin (DUB) to London Stanstead (STN)',
     stops: 'Direct',
@@ -386,7 +538,7 @@ var flight_one = {
 }
 var flight_two = {
     route: 'Dublin (DUB) to The Sea',
-    stops: '1',
+    stops: fake_stops,
     depart: '23/8/2023 07:30',
     arrive: '23/8/2023 08:50',
     duration: '1H 20M',
