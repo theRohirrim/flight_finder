@@ -288,11 +288,9 @@ function FlightSearch() {
         span_div.classList.add('close');
         content_div.appendChild(span_div);
 
-        // Create the content and append to the container
-        const p = document.createElement('p');
-        p.textContent = 'BLooAFSoFOFAOSDFSDFJKSF';
-        content_div.appendChild(p);
-        // TO DO, THE TABLE MAKING
+        // Make table of the layover flights and append to the modal
+        const modal_flights = makeModalTable(data, container);
+        content_div.appendChild(modal_flights);
 
         // When user clicks on span, close the modal
         span_div.onclick = function() {
@@ -310,6 +308,40 @@ function FlightSearch() {
         document.body.appendChild(container);
         
         return container;
+    }
+
+    function makeModalTable(data, modal) {
+        //Clear the container of any current content
+        const modal_content = modal.firstChild;
+        if (modal_content.childNodes.length > 0){
+            modal_content.replaceChildren();
+        }
+
+        const table = document.createElement('table');
+        const headerRow = document.createElement('tr');
+        
+        // Create table header row
+        const keys = Object.keys(data[0]);
+        for (const key of keys) {
+            const headerCell = document.createElement('th');
+            headerCell.textContent = key;
+            headerRow.appendChild(headerCell);
+        }
+        table.appendChild(headerRow);
+        
+        // Create table data rows
+        for (const obj of data) {
+            const dataRow = document.createElement('tr');
+            for (const key of keys) {
+            const dataCell = document.createElement('td');
+            dataCell.textContent = obj[key];
+            dataRow.appendChild(dataCell);
+            }
+            table.appendChild(dataRow);
+        }
+        
+        return table;
+
     }
 
     // Create table function to insert into the html with the appropriate results, from StackDiary.com @ https://stackdiary.com/tutorials/create-table-javascript/
@@ -379,6 +411,18 @@ function FlightSearch() {
             dataCell.classList.add('tableCell');
             dataRow.appendChild(dataCell);
           }
+
+          // Window clicks will close all modals
+          // All page modals
+          var modals = document.querySelectorAll('.modal');
+          window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                for (var index in modals) {
+                    if (typeof modals[index].style !== 'undefined') modals[index].style.display = "none";    
+                }
+            }
+        }
+
           table.appendChild(dataRow);
         }
       
@@ -528,6 +572,25 @@ var fake_stops = [{
     duration: '1H 20M',
     cost: '€24'
 }]
+var fake_stops_two = [{
+    route: 'The Land to The Sea',
+    depart: '23/8/2023 07:30',
+    arrive: '23/8/2023 08:50',
+    duration: '1H 20M',
+    cost: '€24'
+}, {
+    route: 'Dublin (DUB) to The Land',
+    depart: '23/8/2023 07:30',
+    arrive: '23/8/2023 08:50',
+    duration: '1H 20M',
+    cost: '€24'
+}, {
+    route: 'The Land to The Sea',
+    depart: '23/8/2023 07:30',
+    arrive: '23/8/2023 08:50',
+    duration: '1H 20M',
+    cost: '€24'
+}];
 var flight_one = {
     route: 'Dublin (DUB) to London Stanstead (STN)',
     stops: 'Direct',
@@ -544,7 +607,15 @@ var flight_two = {
     duration: '1H 20M',
     cost: '€24'
 }
-flights.push(flight_one, flight_two);
+var flight_three = {
+    route: 'Bloopy bin bop',
+    stops: fake_stops_two,
+    depart: '23/8/2023 07:30',
+    arrive: '23/8/2023 08:50',
+    duration: '1H 20M',
+    cost: '€24'
+}
+flights.push(flight_one, flight_two, flight_three);
 
 var return_flights = [];
 var flights_one = [
