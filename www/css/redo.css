@@ -233,7 +233,6 @@ select {
 /* For the flight container and children nodes showing results */
 
 #flights-container {
-    background-color: #D5F3FE;
     display: flexbox;
 }
 
@@ -242,19 +241,36 @@ select {
 }
 
 .headerCell {
-    background-color: azure;
+    background-color: rgb(215, 247, 167);
 }
 
 .tableRow {
-    padding: 0.2em;
-    background-color: blanchedalmond;
+    padding-bottom: 1em;
+    margin-bottom: 0.5em;
     justify-content: center;
+    background-color: #d2b47d;
+    border-bottom: 0.5em;
+
 }
 
 .tableCell {
-    padding: 0.2em;
-    background-color: honeydew;
+    padding: 0.3em;
     justify-content: center;
+}
+
+.leftCell {
+    border-top-left-radius: 0.5em;
+    border-bottom-left-radius: 0.5em;
+}
+
+.rightCell {
+    border-top-right-radius: 0.5em;
+    border-bottom-right-radius: 0.5em;
+}
+
+table {
+    border-spacing: 0 0.2em;
+    
 }
   
 
@@ -282,8 +298,8 @@ select {
     border: 1px solid #888;
     width: 80%; /* Could be more or less, depending on screen size */
 }
-  
-  /* The Close Button */
+
+/* The Close Button */
 .close {
     color: #aaa;
     float: right;

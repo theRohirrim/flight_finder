@@ -319,6 +319,8 @@ function FlightSearch() {
 
         const table = document.createElement('table');
         const headerRow = document.createElement('tr');
+        // Add class to the header row
+        headerRow.classList.add('headerRow');
         
         // Create table header row
         const keys = Object.keys(data[0]);
@@ -326,16 +328,35 @@ function FlightSearch() {
             const headerCell = document.createElement('th');
             headerCell.textContent = key;
             headerRow.appendChild(headerCell);
+            // Add class to the header cells
+            headerCell.classList.add('headerCell');
+
+            // Add classes to end groups for styling later
+            if (key == 'route') {
+                headerCell.classList.add('leftCell');
+            } else if (key == 'cost') {
+                headerCell.classList.add('rightCell');
+            }
         }
         table.appendChild(headerRow);
         
         // Create table data rows
         for (const obj of data) {
             const dataRow = document.createElement('tr');
+            // Add class to the table row
+            dataRow.classList.add('tableRow');
             for (const key of keys) {
-            const dataCell = document.createElement('td');
-            dataCell.textContent = obj[key];
-            dataRow.appendChild(dataCell);
+                const dataCell = document.createElement('td');
+                dataCell.textContent = obj[key];
+                // Add class to the table cell and append to row
+                dataCell.classList.add('tableCell');
+                // Add classes to end groups for styling later
+                if (key == 'route') {
+                    dataCell.classList.add('leftCell');
+                } else if (key == 'cost') {
+                    dataCell.classList.add('rightCell');
+                }
+                dataRow.appendChild(dataCell);
             }
             table.appendChild(dataRow);
         }
@@ -365,6 +386,12 @@ function FlightSearch() {
           headerRow.appendChild(headerCell);
           // Add class to the header cells
           headerCell.classList.add('headerCell');
+          // Add classes to end groups for styling later
+          if (key == 'route') {
+            headerCell.classList.add('leftCell');
+          } else if (key == 'cost') {
+            headerCell.classList.add('rightCell');
+          }
         }
         table.appendChild(headerRow);
 
@@ -409,6 +436,12 @@ function FlightSearch() {
             }
             // Add class to the table cell and append to row
             dataCell.classList.add('tableCell');
+            // Add classes to end groups for styling later
+            if (key == 'route') {
+                dataCell.classList.add('leftCell');
+            } else if (key == 'cost') {
+                dataCell.classList.add('rightCell');
+            }
             dataRow.appendChild(dataCell);
           }
 
