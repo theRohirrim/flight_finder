@@ -34,9 +34,21 @@ function onDeviceReady() {
     controller.autocomplete(document.getElementById('arrive'), autocomplete_list);
 
     // Add table to the html
-    const table = controller.createTableFromObjects(return_flights);
+    // const table = controller.createTableFromObjects(return_flights);
     const tableContainer = document.getElementById('flights-container');
-    tableContainer.appendChild(table);
+    // tableContainer.appendChild(table);
+
+    // Make list of things to append
+    var list = []
+
+    for (const location in processed_dict) {
+        let div = controller.makeCollapsbile(location, processed_dict[location], 'to')
+        list.push(div)
+    }
+    for (const location of list) {
+        tableContainer.appendChild(location);
+    }
+   
 
 }
 
@@ -287,7 +299,6 @@ function FlightSearch() {
         span_div.innerText = 'X';
         span_div.classList.add('close');
         content_div.appendChild(span_div);
-        console.log(content_div)
 
         // Make table of the layover flights and append to the modal
         const modal_flights = makeModalTable(data, container);
@@ -367,7 +378,7 @@ function FlightSearch() {
     }
 
     // Create table function to insert into the html with the appropriate results, from StackDiary.com @ https://stackdiary.com/tutorials/create-table-javascript/
-    this.createTableFromObjects = function(data) {
+    function createTableFromObjects(data) {
         // clear the container of any current content or table
         const container = document.getElementById('flights-container');
         if (container.childNodes.length > 0){
@@ -415,9 +426,7 @@ function FlightSearch() {
             // Append all divs to the table cell to the cells
             for (const div of content) {
                 dataCell.appendChild(div);
-            }
-            console.log(dataCell)
-            
+            }            
             // Add class to the table cell and append to row
             dataCell.classList.add('tableCell');
             dataRow.appendChild(dataCell)
@@ -441,7 +450,6 @@ function FlightSearch() {
                 }
             }
         }
-        console.log(table);
         return table;
     }
 
@@ -467,7 +475,6 @@ function FlightSearch() {
                 const mod = makeModal(entry, mod_id);
                 // Open the modal when the user clicks the button
                 stopsButton.onclick = function() {
-                    console.log('recognised click');
                     mod.style.display = "block";
                 }
 
@@ -482,7 +489,6 @@ function FlightSearch() {
             // Add a class to the entry div and add to the list of divs
             the_div.classList.add('cell-div');
             content.push(the_div);
-            console.log(`inside ${key} is : ${the_div.getAttribute}`);
         }
         // Return the list of divs
         return content
@@ -539,8 +545,8 @@ function FlightSearch() {
         }
         */
 
-        var depart = 'AZ';
-        var arrive = 'MIA';
+        var depart = 'LHR';
+        var arrive = 'FR';
         var date_from = '11/09/2023'
         var date_to = '12/09/2023'
         var return_from = '15/09/2023'
@@ -557,8 +563,14 @@ function FlightSearch() {
                 // TODO remove the loading icon if its still going
                 //stopLoader();
             } else {
-                // Build entries of flights
-                // const return_entries = buildReturnEntries(data, limit)
+                // // Get back list of collapsibles or just a regular table
+                // const appendables = buildCollapsbileList(data, depart, arrive);
+                // // Get the div container to append to
+                // const tableContainer = document.getElementById('flights-container');
+                // //Iterate through list and append to the flight container
+                // for (const item of appendables) {
+                //     tableContainer.appendChild(item);
+                // }
             }
         }
 
@@ -569,15 +581,15 @@ function FlightSearch() {
 
     }
 
-    function buildReturnEntries(data, limit) {
+    function processResults(data, target) {
         // Create an empty list of flights
-        var flights = [];
+        var flights = {};
 
         // Iterate through list up to result limit
-        for (let i = 0; i < limit; i++) {
+        for (let i = 0; i < data.length; i++) {
             // Get OUTGOING 
             // Get route
-            const out_route = `${location_dictionary[data[i].cityCodeFrom]} to ${location_dictionary[data[i].cityCodeTo]}`
+            const out_route = `${location_dictionary[data[i].flyFrom].name} to ${location_dictionary[data[i].flyTo]}`
             // Get the number of stops
             var out_stops = [];
             // Get departure time
@@ -592,26 +604,129 @@ function FlightSearch() {
 
             // GET RETURN
             // Get route
-            const ret_route = `${location_dictionary[data[i].cityCodeTo]} to ${location_dictionary[data[i].cityCodeFrom]}`
+            const ret_route = `${location_dictionary[data[i].flyTo.name]} to ${location_dictionary[data[i].flyFrom.name]}`
             // Get the number of stops
             var ret_stops = [];
             // Get departure time
-            const ret_depart_time = 0;
+            const ret_depart_time = convertNiceDate(data[i].route[data[i].route.slice(-1)].local_departure);
             // Get arrival time
-            const ret_arrive_time = 0;
+            const ret_arrive_time = convertNiceDate(data[i].route[data[i].route.slice(-1)].local_arrival);
             // Get duration
             const ret_duration = convertDuration(data.duration.return);
             
 
-            // Build a div with two 
+            
 
         }
 
     }
 
+    this.makeCollapsbile = function(location, flights, direction) {
+        // Make button and add class to it
+        const btn = document.createElement('button');
+        btn.classList.add('collapsible');
+        // Add the text content
+        btn.innerHTML = `Fly ${direction} ${location} from ${flights[0].cost[0]}`
+        // Create the content div
+        const col_content = document.createElement('div');
+        // Add the 'collapsible-content' class
+        col_content.classList.add('content');
+        // Create a table with the flights
+        const tab = createTableFromObjects(flights)
+        // Attach the table to the collapsible content div
+        col_content.appendChild(tab);
+
+        const div = document.createElement('div');
+        div.appendChild(btn);
+        div.appendChild(col_content);
+
+        return div;
+
+    }
+
+    function buildCollapsibleList(data, depart, arrive) {
+        // Create a list of collapsibles to be appended to the display
+        var appendables = [];
+        // Decide collapsible format based on the departure and arrival location types
+        const deptype = location_dictionary[depart];
+        const arrtype = location_dictionary[arrive];
+        if ( ((deptype == 'airport' || 'city') && (arrtype == 'country')) || (deptype == 'country' && arrtype == 'country') ) {
+            // CITY ARRIVAL
+            // Create a dictionary of results to build into collapsibles
+            const entry_dict = processResults(data, 'cityTo');
+            // Iterate through the dictionary and make collapsibles, attaching table to each
+            for (const location in entry_dict) {
+                // Create the collapsible and add to the appendables list
+                appendables.push(makeCollapsbile(location, entry_dict[location], direction));
+            }
+
+        } else if ( (deptype == 'country' && (arrtype == 'airport' || 'city') ) ) {
+            // CITY DEPARTURE
+            // Create a dictionary of results to build into collapsibles
+            const entry_dict = processResults(data, 'countryFrom');
+            // Iterate through the dictionary and make collapsibles, attaching table to each
+            for (const location in entry_dict) {
+                // Create the collapsible and add to the appendables list
+                appendables.push(makeCollapsbile(location, entry_dict[location], direction));
+            }
+
+        } else if ( (deptype == 'airport' || 'city' || 'country'  && arrtype == 'region' || 'continent' || 'anywhere')  ||  (deptype == 'region' || 'continent' || 'anywhere' && arrtype == 'region' || 'continent') ) {
+            // COUNTRY ARRIVAL
+            // Create a dictionary of results to build into collapsibles
+            const entry_dict = processResults(data, 'countryTo');
+            // Iterate through the dictionary and make collapsibles, attaching table to each
+            for (const location in entry_dict) {
+                // Create the collapsible and add to the appendables list
+                appendables.push(makeCollapsbile(location, entry_dict[location], direction));
+            }
+
+        } else if ( deptype == 'region' || 'continent' || 'anywhere' && arrtype == 'airport' || 'city' || 'country' ) {
+            // COUNTRY DEPARTURE
+            // Create a dictionary of results to build into collapsibles
+            const entry_dict = processResults(data, 'cityTo');
+            // Iterate through the dictionary and make collapsibles, attaching table to each
+            for (const location in entry_dict) {
+                // Create the collapsible and add to the appendables list
+                appendables.push(makeCollapsbile(location, entry_dict[location], direction));
+            }
+
+        } else {
+            // NORMAL DISPLAY
+            const entry_dict = processResults(data, 'cityTo');
+            // Make a table of the flights and append it to the appendables
+            for (const location in entry_dict) {
+                appendables.push(createTableFromObjects(entry_dict[location]));
+            }
+        }
+
+        return appendables
+    }
+
     // FR4 Set listener to search button to activate search
-    document.getElementById("search_button").addEventListener("click", doSearch); 
+    document.getElementById("search_button").addEventListener("click", doSearch);
+
 }
+
+// Set up the collapsible open and closing
+document.addEventListener("DOMContentLoaded", (event) => {
+    var coll = document.getElementsByClassName("collapsible");
+    var i;
+
+    for (i = 0; i < coll.length; i++) {
+    coll[i].addEventListener("click", function() {
+        this.classList.toggle("active");
+        var content = this.nextElementSibling;
+        if (content.style.maxHeight){
+        content.style.maxHeight = null;
+        } else {
+        content.style.maxHeight = content.scrollHeight + "px";
+        } 
+    });
+    }
+
+
+  });
+
 
 
 var autocomplete_list = [];
@@ -696,6 +811,20 @@ var flights_two =
     cost: ['€24', null]
 }
 
-return_flights.push(flights_one, flights_two);
+var flights_three = {
+    route: ['Dublin (DUB) to Paris Charles de Gaul (CDG)', 'Paris Charles de Gaul (CDG) To Dublin (DUB)'],
+    stops: ['Direct', fake_stops],
+    depart: ['23/8/2023 07:30', '25/08/2023 11:45'],
+    arrive: ['23/8/2023 08:50', '25/08/2023 13:10'],
+    duration: ['1H 20M', '1H 30M'],
+    cost: ['€24', null]
+}
+
+return_flights.push(flights_one, flights_two, flights_three);
+
+var processed_dict = {
+    London: [flights_one, flights_two],
+    Paris: [flights_three]
+}
 
 module.exports = {FlightSearch: FlightSearch};

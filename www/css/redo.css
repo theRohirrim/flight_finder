@@ -1,3 +1,7 @@
+html {
+    overflow: scroll;
+}
+
 head {
     color: black
 }
@@ -323,6 +327,46 @@ table {
     text-decoration: none;
     cursor: pointer;
  }
+
+
+/* Styling for the collapsible elements */
+.collapsible {
+    background-color: #dea0d8;
+    color: rgb(24, 22, 22);
+    cursor: pointer;
+    padding: 0.8em;
+    border-radius: 0.8em;
+    margin-bottom: 0.1em;
+    width: 100%;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 1.15em;
+}
+  
+  .active, .collapsible:hover {
+    background-color: #ede8e8;
+}
+
+.collapsible:after {
+    content: '\02795'; /* Unicode character for "plus" sign (+) */
+    font-size: 13px;
+    color: white;
+    float: right;
+    margin-left: 5px;
+}
+  
+  .active:after {
+    content: "\2796"; /* Unicode character for "minus" sign (-) */
+}
+  
+  .content {
+    padding: 0 18px;
+    border-radius: 0.5em;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
+}
 
 /* Media queries to adjust the sizes of the display on different
 screen sizes */
