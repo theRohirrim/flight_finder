@@ -278,15 +278,16 @@ function FlightSearch() {
         container.style.display = 'none'
 
         // Create div for modal content and add to 
-        const content_div = document.createElement('div');
+        var content_div = document.createElement('div');
         content_div.classList.add('modal-content');
         container.appendChild(content_div);
 
         //Create a span with the close button
-        const span_div = document.createElement('span');
-        span_div.textContent = 'x';
+        const span_div = document.createElement('div');
+        span_div.innerText = 'X';
         span_div.classList.add('close');
         content_div.appendChild(span_div);
+        console.log(content_div)
 
         // Make table of the layover flights and append to the modal
         const modal_flights = makeModalTable(data, container);
@@ -577,6 +578,7 @@ function FlightSearch() {
             const ret_duration = convertDuration(data.duration.return);
             
 
+            // Build a div with two 
 
         }
 

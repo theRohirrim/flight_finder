@@ -233,7 +233,6 @@ select {
 /* For the flight container and children nodes showing results */
 
 #flights-container {
-    display: flexbox;
 }
 
 .headerRow {
@@ -255,7 +254,7 @@ select {
 
 .tableCell {
     padding: 0.3em;
-    justify-content: center;
+    text-align: center;
 }
 
 .leftCell {
@@ -270,6 +269,7 @@ select {
 
 table {
     border-spacing: 0 0.2em;
+    width: 98%;
     
 }
   
@@ -299,12 +299,17 @@ table {
     width: 80%; /* Could be more or less, depending on screen size */
 }
 
+.modal-button {
+    font-size: 1.1em;
+}
+
 /* The Close Button */
 .close {
-    color: #aaa;
+    color: #817d7d;
     float: right;
     font-size: 28px;
     font-weight: bold;
+    background-color: darkblue;
 }
   
 .close:hover,
@@ -318,7 +323,7 @@ table {
 screen sizes */
 /* For smaller phones */
 @media screen and (max-width: 400px) {
-    .locations, .dates, .other-options {
+    .locations, .dates, .other-options, .tableCell, .headerRow {
         font-size: 12px;
     }
 
@@ -335,7 +340,7 @@ screen sizes */
 
 /* For larger than tablets but smaller than 4k desktops */
 @media screen and (min-width: 900px) {
-    .locations, .dates, .other-options {
+    legend, .locations, .dates, .other-options, .tableCell, .headerCell {
         font-size: 16px;
     }
 
@@ -352,12 +357,16 @@ screen sizes */
     input[type="button"]{
         font-size: 1.3em;
     }
+
+    .modal-button {
+        font-size: 1.2em;
+    }
 }
 
 /* For large laptops and desktops */
 @media screen and (min-width: 1400px) {
-    .locations, .dates, .other-options {
-        font-size: 20px;
+    legend, .locations, .dates, .other-options, .tableCell, .headerCell {
+        font-size: 24px;
     }
 
     input[type="text"], input[type="date"], 
@@ -372,5 +381,9 @@ screen sizes */
 
     input[type="button"]{
         font-size: 1.5em;
+    }
+
+    .modal-button {
+        font-size: 1.3em;
     }
 }
