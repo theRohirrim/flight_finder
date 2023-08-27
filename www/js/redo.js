@@ -34,7 +34,7 @@ function onDeviceReady() {
     controller.autocomplete(document.getElementById('arrive'), autocomplete_list);
 
     // Add table to the html
-    const table = controller.createTableFromObjects(flights);
+    const table = controller.createTableFromObjects(return_flights);
     const tableContainer = document.getElementById('flights-container');
     tableContainer.appendChild(table);
 
@@ -400,16 +400,60 @@ function FlightSearch() {
         var id = 0;
       
         // Create table data rows
+        // For each entry in the flight list
         for (const obj of data) {
           const dataRow = document.createElement('tr');
           // Add class to the table row
           dataRow.classList.add('tableRow');
           // Add content to the cells
+          // For each key in the flight entry
           for (const key of keys) {
             // Create data cell
             const dataCell = document.createElement('td');
-            // If the key is 'stops', then make modal or just continue
-            if (key == 'stops' && obj[key] != 'Direct') {
+            // Create a list of one or two divs to go into the data cell
+            const content = makeCells(key, obj[key], id)
+            // Append all divs to the table cell to the cells
+            for (const div of content) {
+                dataCell.appendChild(div);
+            }
+            console.log(dataCell)
+            
+            // Add class to the table cell and append to row
+            dataCell.classList.add('tableCell');
+            dataRow.appendChild(dataCell)
+            // Add classes to end groups for styling later
+            if (key == 'route') {
+                dataCell.classList.add('leftCell');
+            } else if (key == 'cost') {
+                dataCell.classList.add('rightCell');
+            }
+          }
+          // Append the row to the table
+          table.appendChild(dataRow);
+        }
+        // Window clicks will close all modals
+        // All page modals
+        var modals = document.querySelectorAll('.modal');
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                for (var index in modals) {
+                    if (typeof modals[index].style !== 'undefined') modals[index].style.display = "none";    
+                }
+            }
+        }
+        console.log(table);
+        return table;
+    }
+
+    function makeCells(key, data, id) {
+        // Create list of potential divs to be inserted (1 or 2)
+        var content = [];
+        // Iterate through the list of data
+        for (const entry of data) {
+            // Create a div for the values to enter
+            var the_div = document.createElement('div');
+            // Creating modal if the key is stops
+            if (key == 'stops' && entry != 'Direct') {
                 // Create button element
                 const stopsButton = document.createElement('button');
                 // Assign class and ID to modal button
@@ -417,10 +461,10 @@ function FlightSearch() {
                 const mod_id = `modal${id}`
                 stopsButton.setAttribute("href", mod_id)
                 // Write the number of stops as the text of the button
-                stopsButton.textContent = obj[key].length;
+                stopsButton.textContent = entry.length;
 
                 // Make the modal content
-                const mod = makeModal(obj[key], mod_id);
+                const mod = makeModal(entry, mod_id);
                 // Open the modal when the user clicks the button
                 stopsButton.onclick = function() {
                     console.log('recognised click');
@@ -430,37 +474,18 @@ function FlightSearch() {
                 // Increment the id for following modal unique ID's
                 id += 1;
                 // Add the button to the data cell
-                dataCell.appendChild(stopsButton);
+                the_div.appendChild(stopsButton);
             } else {
                 // Otherwise add the content of the key to the data cell
-                dataCell.textContent = obj[key];
+                the_div.textContent = entry;
             }
-            // Add class to the table cell and append to row
-            dataCell.classList.add('tableCell');
-            // Add classes to end groups for styling later
-            if (key == 'route') {
-                dataCell.classList.add('leftCell');
-            } else if (key == 'cost') {
-                dataCell.classList.add('rightCell');
-            }
-            dataRow.appendChild(dataCell);
-          }
-
-          // Window clicks will close all modals
-          // All page modals
-          var modals = document.querySelectorAll('.modal');
-          window.onclick = function(event) {
-            if (event.target.classList.contains('modal')) {
-                for (var index in modals) {
-                    if (typeof modals[index].style !== 'undefined') modals[index].style.display = "none";    
-                }
-            }
+            // Add a class to the entry div and add to the list of divs
+            the_div.classList.add('cell-div');
+            content.push(the_div);
+            console.log(`inside ${key} is : ${the_div.getAttribute}`);
         }
-
-          table.appendChild(dataRow);
-        }
-      
-        return table;
+        // Return the list of divs
+        return content
     }
 
     // Convert date to be a nicer format for display
@@ -627,61 +652,50 @@ var fake_stops_two = [{
     cost: '€24'
 }];
 var flight_one = {
-    route: 'Dublin (DUB) to London Stanstead (STN)',
-    stops: 'Direct',
-    depart: '23/8/2023 07:30',
-    arrive: '23/8/2023 08:50',
-    duration: '1H 20M',
-    cost: '€24'
+    route: ['Dublin (DUB) to London Stanstead (STN)'],
+    stops: ['Direct'],
+    depart: ['23/8/2023 07:30'],
+    arrive: ['23/8/2023 08:50'],
+    duration: ['1H 20M'],
+    cost: ['€24']
 }
 var flight_two = {
-    route: 'Dublin (DUB) to The Sea',
-    stops: fake_stops,
-    depart: '23/8/2023 07:30',
-    arrive: '23/8/2023 08:50',
-    duration: '1H 20M',
-    cost: '€24'
+    route: ['Dublin (DUB) to The Sea'],
+    stops: [fake_stops],
+    depart: ['23/8/2023 07:30'],
+    arrive: ['23/8/2023 08:50'],
+    duration: ['1H 20M'],
+    cost: ['€24']
 }
 var flight_three = {
-    route: 'Bloopy bin bop',
-    stops: fake_stops_two,
-    depart: '23/8/2023 07:30',
-    arrive: '23/8/2023 08:50',
-    duration: '1H 20M',
-    cost: '€24'
+    route: ['Bloopy bin bop'],
+    stops: [fake_stops_two],
+    depart: ['23/8/2023 07:30'],
+    arrive: ['23/8/2023 08:50'],
+    duration: ['1H 20M'],
+    cost: ['€24']
 }
 flights.push(flight_one, flight_two, flight_three);
 
 var return_flights = [];
-var flights_one = [
-    {route: 'Dublin (DUB) to London Stanstead (STN)',
-    stops: 'Direct',
-    depart: '23/8/2023 07:30',
-    arrive: '23/8/2023 08:50',
-    duration: '1H 20M',
-    cost: '€24'},
-    {route: 'STANSTEAD TO SEA',
-    stops: 'Direct',
-    depart: '23/8/2023 07:30',
-    arrive: '23/8/2023 08:50',
-    duration: '1H 20M',
-    cost: '€24'}
-]
+var flights_one =
+    {route: ['Dublin (DUB) to London Stanstead (STN)', 'London Stanstead (STN) To Dublin (DUB)'],
+    stops: ['Direct', fake_stops],
+    depart: ['23/8/2023 07:30', '25/08/2023 11:45'],
+    arrive: ['23/8/2023 08:50', '25/08/2023 13:10'],
+    duration: ['1H 20M', '1H 30M'],
+    cost: ['€24', null]
+}
 
-var flights_two = [
-    {route: 'Dublin (DUB) to London Stanstead (STN)',
-    stops: 'Direct',
-    depart: '23/8/2023 07:30',
-    arrive: '23/8/2023 08:50',
-    duration: '1H 20M',
-    cost: '€24'},
-    {route: 'STANSTEAD TO SEA',
-    stops: 'Direct',
-    depart: '23/8/2023 07:30',
-    arrive: '23/8/2023 08:50',
-    duration: '1H 20M',
-    cost: '€24'}
-]
+var flights_two =
+    {route: ['Dublin (DUB) to London Stanstead (STN)', 'London Stanstead (STN) To Dublin (DUB)'],
+    stops: ['Direct', fake_stops],
+    depart: ['23/8/2023 07:30', '25/08/2023 11:45'],
+    arrive: ['23/8/2023 08:50', '25/08/2023 13:10'],
+    duration: ['1H 20M', '1H 30M'],
+    cost: ['€24', null]
+}
+
 return_flights.push(flights_one, flights_two);
 
 module.exports = {FlightSearch: FlightSearch};
