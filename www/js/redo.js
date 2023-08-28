@@ -33,21 +33,21 @@ function onDeviceReady() {
     controller.autocomplete(document.getElementById('depart'), autocomplete_list);
     controller.autocomplete(document.getElementById('arrive'), autocomplete_list);
 
-    // Add table to the html
-    // const table = controller.createTableFromObjects(return_flights);
-    const tableContainer = document.getElementById('flights-container');
-    // tableContainer.appendChild(table);
+    // // Add table to the html
+    // // const table = controller.createTableFromObjects(return_flights);
+    // const tableContainer = document.getElementById('flights-container');
+    // // tableContainer.appendChild(table);
 
-    // Make list of things to append
-    var list = []
+    // // Make list of things to append
+    // var list = []
 
-    for (const location in processed_dict) {
-        let div = controller.makeCollapsbile(location, processed_dict[location], 'to')
-        list.push(div)
-    }
-    for (const location of list) {
-        tableContainer.appendChild(location);
-    }
+    // for (const location in processed_dict) {
+    //     let div = controller.makeCollapsible(location, processed_dict[location], 'to')
+    //     list.push(div)
+    // }
+    // for (const location of list) {
+    //     tableContainer.appendChild(location);
+    // }
    
 
 }
@@ -187,6 +187,8 @@ function FlightSearch() {
 
                 // Add each entry to lookup dictionary
                 addToLocationDictionary(obj, i);
+                // Add each entry to a code dictionary
+                codeDictionary[auto_entry] = obj.locations[i].code
             }
         }
 
@@ -202,6 +204,8 @@ function FlightSearch() {
                     location_list.push(auto_entry);
                     // Add each entry to lookup dictionary
                     addToLocationDictionary(obj, i);
+                    // Add each entry to a code dictionary
+                    codeDictionary[auto_entry] = obj.locations[i].code
                 }
             }
         }
@@ -215,6 +219,8 @@ function FlightSearch() {
                 location_list.push(auto_entry);
                 // Add each entry to lookup dictionary                    
                 addToLocationDictionary(obj, i);
+                // Add each entry to a code dictionary
+                codeDictionary[auto_entry] = obj.locations[i].code
             }
         }
 
@@ -227,6 +233,8 @@ function FlightSearch() {
                 location_list.push(auto_entry);
                 // Add each entry to lookup dictionary                    
                 addToLocationDictionary(obj, i);
+                // Add each entry to a code dictionary
+                codeDictionary[auto_entry] = obj.locations[i].code
             }
         }
 
@@ -239,6 +247,8 @@ function FlightSearch() {
                 location_list.push(auto_entry);
                 // Add each entry to lookup dictionary                    
                 addToLocationDictionary(obj, i);
+                // Add each entry to a code dictionary
+                codeDictionary[auto_entry] = obj.locations[i].code
             }
         }
 
@@ -282,6 +292,9 @@ function FlightSearch() {
     }
 
     function makeModal(data, id) {
+        // Create list for appendable items to properly append from
+        var list = [] 
+        
         // Create container div and set id and class
         const container = document.createElement('div');
         container.setAttribute('id', id)
@@ -296,13 +309,18 @@ function FlightSearch() {
 
         //Create a span with the close button
         const span_div = document.createElement('div');
-        span_div.innerText = 'X';
+        span_div.innerText = 'x';
         span_div.classList.add('close');
-        content_div.appendChild(span_div);
+        list.push(span_div);
 
         // Make table of the layover flights and append to the modal
         const modal_flights = makeModalTable(data, container);
-        content_div.appendChild(modal_flights);
+        list.push(modal_flights);
+
+        // Append all to the modal
+        for (const item of list) {
+            content_div.appendChild(item);
+        }
 
         // When user clicks on span, close the modal
         span_div.onclick = function() {
@@ -456,6 +474,8 @@ function FlightSearch() {
     function makeCells(key, data, id) {
         // Create list of potential divs to be inserted (1 or 2)
         var content = [];
+        // Set up counter to apply different CSS class to each cell div
+        var ind = 0;
         // Iterate through the list of data
         for (const entry of data) {
             // Create a div for the values to enter
@@ -488,6 +508,10 @@ function FlightSearch() {
             }
             // Add a class to the entry div and add to the list of divs
             the_div.classList.add('cell-div');
+            // Add a class to differentiate the top and bottom divs
+            the_div.classList.add(`cell${ind}`);
+            // Increment the ind variable
+            ind += 1;
             content.push(the_div);
         }
         // Return the list of divs
@@ -524,34 +548,71 @@ function FlightSearch() {
         return hours + 'h ' + remainder + 'm';
     }
 
+    // Activate collapsibles on click
+    function activateCollapsibles() {
+        var coll = document.getElementsByClassName("collapsible");
+        var i;
+
+        for (i = 0; i < coll.length; i++) {
+        coll[i].addEventListener("click", function() {
+            console.log('recognised click')
+            this.classList.toggle("active");
+            var content = this.nextElementSibling;
+            if (content.style.maxHeight){
+            content.style.maxHeight = null;
+            } else {
+            content.style.maxHeight = content.scrollHeight + "px";
+            } 
+        });
+        }
+    }
+
     // Test version to build the types of table displays needed
     function doSearch() {
-        /*
-        // Get all the inputs from the HTML
+        // Build the url as we go along
+        var searchUrl = `${BASE_GET_URL}/v2/search?`;
+
+        // Get locations and exit function if not valid
         var depart = document.getElementById("depart").value;
         var arrive = document.getElementById("arrive").value;
-        var date = document.getElementById("datePicker").value;
-        var limit = document.getElementById("limit_num").value;
-        // Price limit becomes 'effectively infinite' if it at max value
-        var price_limit = document.getElementById("limit_price").value;
-        if (price_limit == 2000) {
-            price_limit = 50000;
-        }
-
         // Exit function if location values are not in the list of locations
         if (!(autocomplete_list.includes(depart) && autocomplete_list.includes(arrive))){
             alert("Please enter correct departure and arrival locations");
             return
         }
-        */
+        // Get the codes for locations
+        var fly_from = codeDictionary[depart];
+        var fly_to = codeDictionary[arrive];
+        // Append locations to the url
+        searchUrl += `${Object.keys({fly_from})[0]}=${fly_from}&${Object.keys({fly_to})[0]}=${fly_to}`;
 
-        var depart = 'LHR';
-        var arrive = 'FR';
-        var date_from = '11/09/2023'
-        var date_to = '12/09/2023'
-        var return_from = '15/09/2023'
-        var return_to = '16/09/2023'
-        var limit = 20;
+        // Get departure dates if value is there
+        const dates = document.getElementById("departure_calendar").value.split(' - ');
+        var date_from = dates[0];
+        var date_to = dates[1];
+        // Append dates to the string
+        searchUrl += `&${Object.keys({date_from})[0]}=${date_from}&${Object.keys({date_to})[0]}=${date_to}`
+        // Get return dates if return flight checkbox is ticked
+        if ($("#return").prop("checked") === true) {
+            // Get departure dates if value is there
+            const dates = document.getElementById("return_calendar").value.split(' - ');
+            var return_from = dates[0];
+            var return_to = dates[1];
+            // Append the two values to the list
+            searchUrl += `&${Object.keys({return_from})[0]}=${return_from}&${Object.keys({return_to})[0]}=${return_to}`;
+        }
+        var limit = document.getElementById('limit_num').value;
+        var price_to = document.getElementById("limit_price").value;
+        if (price_to == 2000) {
+            price_to = 50000;
+        }
+        searchUrl += `&${Object.keys({limit})[0]}=${limit}&${Object.keys({price_to})[0]}=${price_to}`;
+        var max_sector_stopovers = $("#stop_limit").val();
+        // if max stopovers has a value, add it to the string
+        if (max_sector_stopovers !== 'Any') {
+            searchUrl += `&${Object.keys({max_sector_stopovers})[0]}=${max_sector_stopovers}`;
+        }
+
 
         function onSuccess(obj) {
             const data = obj.data
@@ -563,18 +624,22 @@ function FlightSearch() {
                 // TODO remove the loading icon if its still going
                 //stopLoader();
             } else {
-                // // Get back list of collapsibles or just a regular table
-                // const appendables = buildCollapsbileList(data, depart, arrive);
-                // // Get the div container to append to
-                // const tableContainer = document.getElementById('flights-container');
-                // //Iterate through list and append to the flight container
-                // for (const item of appendables) {
-                //     tableContainer.appendChild(item);
-                // }
+                // Get back list of collapsibles or just a regular table
+                const appendables = buildCollapsbileList(data, depart, arrive);
+                // Get the div container to append to
+                const tableContainer = document.getElementById('flights-container');
+                //Iterate through list and append to the flight container
+                for (const item of appendables) {
+                    tableContainer.appendChild(item);
+                }
+
+                // Set up the collapsible open and closing
+                activateCollapsibles();
+
             }
         }
 
-        var searchUrl = `${BASE_GET_URL}/v2/search?fly_from=${depart}&fly_to=${arrive}&date_from=${date_from}&date_to=${date_to}&return_from=${return_from}&return_to=${return_to}&limit=100`
+        // var searchUrl = `${BASE_GET_URL}/v2/search?fly_from=${depart}&fly_to=${arrive}&date_from=${date_from}&date_to=${date_to}&return_from=${return_from}&return_to=${return_to}&limit=100`
 
         $.ajax(searchUrl, {type: "GET",
                 data: {}, headers: {apikey: API_KEY}, success: onSuccess});
@@ -583,45 +648,112 @@ function FlightSearch() {
 
     function processResults(data, target) {
         // Create an empty list of flights
-        var flights = {};
-
+        var flights_dict = {};
+        var location = "";
         // Iterate through list up to result limit
         for (let i = 0; i < data.length; i++) {
+            // Make note of the target location
+            if (target.includes('city')) {
+                // Path to get the city names
+                location = data[i][target];
+
+            } else if (target.includes('country')) {
+                // Path to get the country names
+                location = data[i][target].name
+            }
+
+            // Create an empty flight entry
+            var flight = {
+                route: [],
+                stops: [],
+                depart: [],
+                arrive: [],
+                duration: [],
+                cost: []
+            }
+
             // Get OUTGOING 
-            // Get route
-            const out_route = `${location_dictionary[data[i].flyFrom].name} to ${location_dictionary[data[i].flyTo]}`
-            // Get the number of stops
+            // Get route and append
+            const out_route = `${location_dictionary[data[i].flyFrom].name} to ${location_dictionary[data[i].flyTo].name}`
+            flight.route.push(out_route);
+            // Initialise the stops lists
             var out_stops = [];
-            // Get departure time
-            const out_depart_time = convertNiceDate(data[i].local_departure);
-            // Get arrival time
-            const out_arrival_time = convertNiceDate(data[i].local_arrival);
-            // Get duration
-            const out_duration = convertDuration(data.duration.departure);
-            // Get price
-            const out_price = data[i].price;
-
-
-            // GET RETURN
-            // Get route
-            const ret_route = `${location_dictionary[data[i].flyTo.name]} to ${location_dictionary[data[i].flyFrom.name]}`
-            // Get the number of stops
             var ret_stops = [];
-            // Get departure time
-            const ret_depart_time = convertNiceDate(data[i].route[data[i].route.slice(-1)].local_departure);
-            // Get arrival time
-            const ret_arrive_time = convertNiceDate(data[i].route[data[i].route.slice(-1)].local_arrival);
-            // Get duration
-            const ret_duration = convertDuration(data.duration.return);
-            
+            // Get the list of routes
+            const stops = data[i].route;
+            // Iterate through the stops
+            for (let j = 0; j < stops.length; j++) {
+                const stop = {
+                    route: `${location_dictionary[stops[j].flyFrom].name} to ${location_dictionary[stops[j].flyTo].name}`,
+                    depart: convertNiceDate(stops[j].local_departure),
+                    arrive: convertNiceDate(stops[j].local_arrival),
+                    duration: convertDuration(new Date(stops[j].utc_departure).getTime() - new Date(stops[j].utc_arrival).getTime())
+                }
 
-            
+                if (stops[j].return === 0) {
+                    // Append to outgoing flights
+                    out_stops.push(stop);
+                } else if (stops[j].return === 1) {
+                    // Append to return flights
+                    ret_stops.push(stop);
+                }
+            }
+            // Append stops to flight (or direct if only one)
+            if (out_stops.length === 1) {
+                flight.stops.push('Direct')
+            } else {
+                flight.stops.push(out_stops);
+            }
+            // Get departure time and append to flight
+            const out_depart_time = convertNiceDate(data[i].local_departure);
+            flight.depart.push(out_depart_time);
+            // Get arrival time and append to flight
+            const out_arrival_time = convertNiceDate(data[i].local_arrival);
+            flight.arrive.push(out_arrival_time);
+            // Get duration and append to flight
+            const out_duration = convertDuration(data[i].duration.departure);
+            flight.duration.push(out_duration);
+            // Get price and append to flight
+            const out_price = data[i].price;
+            flight.cost.push(out_price);
 
+            // Get the return information if return stops list is not empty
+            if (ret_stops.length > 0) {
+                // Get route and append to flight
+                const ret_route = `${location_dictionary[data[i].flyTo.name]} to ${location_dictionary[data[i].flyFrom.name]}`
+                flight.route.push(ret_route);
+                // Append stops to flight (or direct if only one)
+                if (ret_stops.length === 1) {
+                    flight.stops.push('Direct')
+                } else {
+                    flight.stops.push(ret_stops);
+                }
+                // Get departure time and append to flight
+                const ret_depart_time = ret_stops[0].local_departure;
+                flight.depart.push(ret_depart_time);
+                // Get arrival time and append to flight
+                const ret_arrive_time = ret_stops[ret_stops.length - 1].local_arrival;
+                flight.arrive.push(ret_arrive_time);
+                // Get duration and append to flight
+                const ret_duration = convertDuration(data[i].duration.return);
+                flight.duration.push(ret_duration);
+                // Append null for return flight cost
+                flight.cost.push(null);
+            }
+
+            // If flight dictionary has location, add flight to the value list, otherwise make a new key/value
+            if (flights_dict.hasOwnProperty(location)) {
+                flights_dict[location].push(flight);
+            } else {
+                // Create the key with the added flight in a list
+                flights_dict[location] = [flight];
+            }
         }
-
+        console.log(flights_dict);
+        return flights_dict;
     }
 
-    this.makeCollapsbile = function(location, flights, direction) {
+    function makeCollapsible(location, flights, direction) {
         // Make button and add class to it
         const btn = document.createElement('button');
         btn.classList.add('collapsible');
@@ -644,60 +776,75 @@ function FlightSearch() {
 
     }
 
-    function buildCollapsibleList(data, depart, arrive) {
+    function buildCollapsbileList(data, depart, arrive) {
         // Create a list of collapsibles to be appended to the display
         var appendables = [];
         // Decide collapsible format based on the departure and arrival location types
-        const deptype = location_dictionary[depart];
-        const arrtype = location_dictionary[arrive];
-        if ( ((deptype == 'airport' || 'city') && (arrtype == 'country')) || (deptype == 'country' && arrtype == 'country') ) {
+        const deptype = location_dictionary[codeDictionary[depart]].type;
+        const arrtype = location_dictionary[codeDictionary[arrive]].type;
+        if (deptype == ('airport' || 'city') && arrtype == 'country' || deptype == 'country' && arrtype == 'country') {
             // CITY ARRIVAL
             // Create a dictionary of results to build into collapsibles
             const entry_dict = processResults(data, 'cityTo');
             // Iterate through the dictionary and make collapsibles, attaching table to each
             for (const location in entry_dict) {
                 // Create the collapsible and add to the appendables list
-                appendables.push(makeCollapsbile(location, entry_dict[location], direction));
+                appendables.push(makeCollapsible(location, entry_dict[location], 'to'));
             }
 
-        } else if ( (deptype == 'country' && (arrtype == 'airport' || 'city') ) ) {
+        } else if ( (deptype == 'country' && arrtype == ('airport' || 'city') ) ) {
             // CITY DEPARTURE
             // Create a dictionary of results to build into collapsibles
-            const entry_dict = processResults(data, 'countryFrom');
+            const entry_dict = processResults(data, 'cityFrom');
             // Iterate through the dictionary and make collapsibles, attaching table to each
             for (const location in entry_dict) {
                 // Create the collapsible and add to the appendables list
-                appendables.push(makeCollapsbile(location, entry_dict[location], direction));
+                const collap = makeCollapsible(location, )
+                appendables.push(makeCollapsible(location, entry_dict[location], 'from'));
             }
 
-        } else if ( (deptype == 'airport' || 'city' || 'country'  && arrtype == 'region' || 'continent' || 'anywhere')  ||  (deptype == 'region' || 'continent' || 'anywhere' && arrtype == 'region' || 'continent') ) {
+        } else if ( (deptype == ('airport' || 'city' || 'country')  && arrtype == ('region' || 'continent' || 'anywhere') )  ||  (deptype == ('region' || 'continent' || 'anywhere') && arrtype == ('region' || 'continent')) ) {
             // COUNTRY ARRIVAL
             // Create a dictionary of results to build into collapsibles
             const entry_dict = processResults(data, 'countryTo');
             // Iterate through the dictionary and make collapsibles, attaching table to each
             for (const location in entry_dict) {
                 // Create the collapsible and add to the appendables list
-                appendables.push(makeCollapsbile(location, entry_dict[location], direction));
+                appendables.push(makeCollapsible(location, entry_dict[location], 'to'));
             }
 
-        } else if ( deptype == 'region' || 'continent' || 'anywhere' && arrtype == 'airport' || 'city' || 'country' ) {
+        } else if ( deptype == ('region' || 'continent' || 'anywhere') && arrtype == ('airport' || 'city' || 'country') ) {
             // COUNTRY DEPARTURE
             // Create a dictionary of results to build into collapsibles
-            const entry_dict = processResults(data, 'cityTo');
+            const entry_dict = processResults(data, 'countryFrom');
             // Iterate through the dictionary and make collapsibles, attaching table to each
             for (const location in entry_dict) {
                 // Create the collapsible and add to the appendables list
-                appendables.push(makeCollapsbile(location, entry_dict[location], direction));
+                appendables.push(makeCollapsible(location, entry_dict[location], 'from'));
             }
 
         } else {
             // NORMAL DISPLAY
             const entry_dict = processResults(data, 'cityTo');
-            // Make a table of the flights and append it to the appendables
-            for (const location in entry_dict) {
-                appendables.push(createTableFromObjects(entry_dict[location]));
+            // Make a list of normal flights
+            var normal_flights = []
+            // Iterate through the dictionary locations
+            for (const key of Object.entries(entry_dict)) {
+                console.log(key);
+                normal_flights.concat(entry_dict[key])
             }
+            // Sort the flight list by price
+            normal_flights.sort(function(a, b) {
+                a = parseFloat(a.cost.slice(1));
+                b = parseFloat(b.cost.slice(1));
+                return a - b;
+            })
+
+
+            // Make a table of the list of flights and append to the appendibles
+            appendables.push(createTableFromObjects(normal_flights));
         }
+        console.log(appendables);
 
         return appendables
     }
@@ -714,6 +861,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
     for (i = 0; i < coll.length; i++) {
     coll[i].addEventListener("click", function() {
+        console.log('recognised click')
         this.classList.toggle("active");
         var content = this.nextElementSibling;
         if (content.style.maxHeight){
@@ -725,12 +873,13 @@ document.addEventListener("DOMContentLoaded", (event) => {
     }
 
 
-  });
+});
 
 
 
 var autocomplete_list = [];
 var location_dictionary = {};
+var codeDictionary = [];
 
 var flights = [];
 

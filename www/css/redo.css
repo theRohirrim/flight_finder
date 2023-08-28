@@ -237,6 +237,7 @@ select {
 /* For the flight container and children nodes showing results */
 
 #flights-container {
+    overflow-x: auto;
 }
 
 .headerRow {
@@ -264,6 +265,16 @@ select {
 .cell-div {
     padding-top: 0.8em;
     background-color: gold;
+
+}
+.cell0 {
+    vertical-align: top;
+    top: 0;
+}
+
+.cell1 {
+    vertical-align: bottom;
+    bottom: 0;
 }
 
 .leftCell {
@@ -279,6 +290,7 @@ select {
 table {
     border-spacing: 0 0.2em;
     width: 98%;
+    overflow-x: auto;
     
 }
   
@@ -371,7 +383,7 @@ table {
 /* Media queries to adjust the sizes of the display on different
 screen sizes */
 /* For smaller phones */
-@media screen and (max-width: 400px) {
+@media screen and (max-width: 425px) {
     .locations, .dates, .other-options, .tableCell, .headerRow {
         font-size: 12px;
     }

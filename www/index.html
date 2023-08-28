@@ -9,7 +9,7 @@
         <link rel="stylesheet" href="css/redo.css">
 
         <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-        <!-- Added references to make the date range picker work -->
+        <!-- Added references to enable datepicker, provided by https://www.daterangepicker.com/ -->
         <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
         <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
@@ -72,11 +72,11 @@
                     <!-- FR17 Max number of stopovers -->
                     <div class="box option" id="max_stops">
                         <label for="stop_limit">Max stops</label>
-                        <select name="stop_limit">
+                        <select id="stop_limit">
                             <option value="0">Direct Flight</option>
                             <option value="1">1</option>
                             <option value="2">2</option>
-                            <option value="" selected>Any</option>
+                            <option selected>Any</option>
                         </select>
                     </div>
 
