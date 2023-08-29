@@ -276,7 +276,7 @@ function FlightSearch() {
                 // Add each entry to lookup dictionary
                 addToLocationDictionary(code, auto_entry, type);
                 // Add each entry to a code dictionary
-                codeDictionary[auto_entry] = obj.locations[i].code
+                codeDictionary[auto_entry] = code
             }
         }
 
@@ -596,10 +596,33 @@ function FlightSearch() {
         }
     }
 
+    function startLoader() {
+        // First hides the flights-container
+        const cont = document.getElementById('flights-container')
+        cont.setAttribute("hidden", "hid");
+
+        // Starts the loader image to signify to user results are incoming
+        var img = document.getElementsByClassName('loader')[0];
+        img.style.display = "";
+    }
+
+    function stopLoader() {
+        // Removes the loader image
+        var img = document.getElementsByClassName('loader')[0];
+        img.style.display = "none";;
+
+        // Then shows the flight container
+        const cont = document.getElementById('flights-container')
+        cont.removeAttribute("hidden");
+    }
+
     // Test version to build the types of table displays needed
     function doSearch() {
         // Build the url as we go along
         var searchUrl = `${BASE_GET_URL}/v2/search?`;
+
+        // Start the loader
+        startLoader();
 
         // Get locations and exit function if not valid
         var depart = document.getElementById("depart").value;
@@ -630,7 +653,12 @@ function FlightSearch() {
             // Append the two values to the list
             searchUrl += `&${Object.keys({return_from})[0]}=${return_from}&${Object.keys({return_to})[0]}=${return_to}`;
         }
-        var limit = document.getElementById('limit_num').value;
+        var limit;
+        if (depart == 'Anywhere') {
+            limit = Math.round(document.getElementById('limit_num').value / 3);
+        } else {
+            limit = document.getElementById('limit_num').value
+        }
         var price_to = document.getElementById("limit_price").value;
         if (price_to == 2000) {
             price_to = 50000;
@@ -648,6 +676,16 @@ function FlightSearch() {
 
         }
 
+        // Catch errors on the inputs
+        if (depart == arrive) {
+            alert("You cannot have departure and arrival locations be the same.");
+            stopLoader();
+            return
+         } else if (date_from < new Date().setUTCHours(0,0,0,0)) {
+            alert("You cannot pick a date which is in the past.");
+            stopLoader();
+            return
+        }
 
         function onSuccess(obj) {
             const data = obj.data
@@ -656,8 +694,8 @@ function FlightSearch() {
             if (data.length == 0) {
                 // Alert the user if there were no results
                 alert("There were no results for your search");
-                // TODO remove the loading icon if its still going
-                //stopLoader();
+                // Remove the loading icon if its still going
+                stopLoader();
             } else {
                 // Get back list of collapsibles or just a regular table
                 const appendables = buildCollapsibleList(data, depart, arrive);
@@ -670,6 +708,8 @@ function FlightSearch() {
 
                 // Set up the collapsible open and closing
                 activateCollapsibles();
+                // Stop loader 
+                stopLoader();
 
             }
         }
@@ -707,8 +747,6 @@ function FlightSearch() {
             }
         }
 
-        // startLoader();
-
         // Set up the list of promises for the AJAX calls
         var promises = [];
         // Iterate through continent list and add AJAX call to the list of promises
@@ -744,11 +782,9 @@ function FlightSearch() {
 
                 // Set up the collapsible open and closing
                 activateCollapsibles();
+                // Close loader
+                stopLoader();
             }
-
-
-            // Close loader
-            //stopLoader();
         })
     }
 
