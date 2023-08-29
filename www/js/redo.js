@@ -161,12 +161,12 @@ function FlightSearch() {
         return string.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     };
 
-    function addToLocationDictionary(obj, index) {
+    function addToLocationDictionary(code, name, type, dispName = null) {
         // Add each entry to lookup dictionary
-        const location = obj.locations[index];
-        location_dictionary[location.code] = {name: convertString(location.name) + " (" + 
-        location.code + ")",
-        type: location.type}
+        location_dictionary[code] = {name: name, type: type}
+        if (dispName) {
+            location_dictionary[code].dispName = dispName;
+        }
     }
 
     this.doCodes = function(location_list, location_dictionary) {
@@ -181,12 +181,24 @@ function FlightSearch() {
                 if (!auto_entry.toUpperCase().includes(convertString(obj.locations[i].city.name).toUpperCase())) {
                     auto_entry = convertString(obj.locations[i].city.name) + ' ' + auto_entry;
                 }
+                // Get code for entry
+                const code = obj.locations[i].code;
+                // Get type for entry
+                const type = obj.locations[i].type;
+
+                // Get presentable name, no country
+                var displayName = convertString(obj.locations[i].name) + " (" + 
+                obj.locations[i].code + ")"
+                // Check if entry has the city name, adding it if it does not
+                if (!displayName.toUpperCase().includes(convertString(obj.locations[i].city.name).toUpperCase())) {
+                    displayName = convertString(obj.locations[i].city.name) + ' ' + displayName;
+                }
 
                 // Add each entry to autocomplete list
                 location_list.push(auto_entry);
 
                 // Add each entry to lookup dictionary
-                addToLocationDictionary(obj, i);
+                addToLocationDictionary(code, auto_entry, type, displayName);
                 // Add each entry to a code dictionary
                 codeDictionary[auto_entry] = obj.locations[i].code
             }
@@ -202,8 +214,12 @@ function FlightSearch() {
                     obj.locations[i].country.name;
                     // Add each entry to autocomplete list
                     location_list.push(auto_entry);
+                    // Get code for entry
+                    const code = obj.locations[i].id;
+                    // Get type for entry
+                    const type = obj.locations[i].type;
                     // Add each entry to lookup dictionary
-                    addToLocationDictionary(obj, i);
+                    addToLocationDictionary(code, auto_entry, type);
                     // Add each entry to a code dictionary
                     codeDictionary[auto_entry] = obj.locations[i].code
                 }
@@ -217,8 +233,12 @@ function FlightSearch() {
                 var auto_entry = convertString(obj.locations[i].name) + " (Country)";
                 // Add each entry to autocomplete list
                 location_list.push(auto_entry);
-                // Add each entry to lookup dictionary                    
-                addToLocationDictionary(obj, i);
+                // Get code for entry
+                const code = obj.locations[i].code;
+                // Get type for entry
+                const type = obj.locations[i].type;
+                // Add each entry to lookup dictionary
+                addToLocationDictionary(code, auto_entry, type);
                 // Add each entry to a code dictionary
                 codeDictionary[auto_entry] = obj.locations[i].code
             }
@@ -231,10 +251,14 @@ function FlightSearch() {
                 var auto_entry = convertString(obj.locations[i].name) + " (Region)";
                 // Add each entry to autocomplete list
                 location_list.push(auto_entry);
-                // Add each entry to lookup dictionary                    
-                addToLocationDictionary(obj, i);
+                // Get code for entry
+                const code = obj.locations[i].id;
+                // Get type for entry
+                const type = obj.locations[i].type;
+                // Add each entry to lookup dictionary
+                addToLocationDictionary(code, auto_entry, type);
                 // Add each entry to a code dictionary
-                codeDictionary[auto_entry] = obj.locations[i].code
+                codeDictionary[auto_entry] = obj.locations[i].id
             }
         }
 
@@ -245,8 +269,12 @@ function FlightSearch() {
                 var auto_entry = convertString(obj.locations[i].name) + " (Continent)";
                 // Add each entry to autocomplete list
                 location_list.push(auto_entry);
-                // Add each entry to lookup dictionary                    
-                addToLocationDictionary(obj, i);
+                // Get code for entry
+                const code = obj.locations[i].slug;
+                // Get type for entry
+                const type = obj.locations[i].type;
+                // Add each entry to lookup dictionary
+                addToLocationDictionary(code, auto_entry, type);
                 // Add each entry to a code dictionary
                 codeDictionary[auto_entry] = obj.locations[i].code
             }
@@ -269,11 +297,12 @@ function FlightSearch() {
         var searchContinentUrl = BASE_GET_URL + '/locations/dump?locale=en-US&location_types=continent&limit=15000&sort=name&active_only=true';
         $.ajax(searchContinentUrl, {type: "GET", data: {}, headers: {apikey: API_KEY}, success: onContinentSuccess});
 
-        // FR2 Add 'Everywhere' as a choice for departure and arrival.
-        var everywhere_entry = 'Everywhere';
-        location_list.push(everywhere_entry);
-        location_dictionary[everywhere_entry] = {code: 'anywhere',
+        // FR2 Add 'Everywhere' as a choice for departure and arrival to list and dictionaries.
+        var anywhere_entry = 'Anywhere';
+        location_list.push(anywhere_entry);
+        location_dictionary[anywhere_entry] = {code: 'anywhere',
             type: 'anywhere'};
+        codeDictionary[anywhere_entry] = 'anywhere'
     }
 
     this.disableDate = function() {
@@ -613,6 +642,12 @@ function FlightSearch() {
             searchUrl += `&${Object.keys({max_sector_stopovers})[0]}=${max_sector_stopovers}`;
         }
 
+        // If departure is 'Anywhere' then do the anywhere search method
+        if (depart == 'Anywhere') {
+            doAnywhereSearch(searchUrl, depart, arrive);
+
+        }
+
 
         function onSuccess(obj) {
             const data = obj.data
@@ -625,7 +660,7 @@ function FlightSearch() {
                 //stopLoader();
             } else {
                 // Get back list of collapsibles or just a regular table
-                const appendables = buildCollapsbileList(data, depart, arrive);
+                const appendables = buildCollapsibleList(data, depart, arrive);
                 // Get the div container to append to
                 const tableContainer = document.getElementById('flights-container');
                 //Iterate through list and append to the flight container
@@ -644,6 +679,77 @@ function FlightSearch() {
         $.ajax(searchUrl, {type: "GET",
                 data: {}, headers: {apikey: API_KEY}, success: onSuccess});
 
+    }
+
+    function doAnywhereSearch(searchUrl, depart, arrive) {
+        // Get list of all continents
+        var continent_list = []
+        for (let i in location_dictionary) {
+            if (i != 'Anywhere') {
+                if (location_dictionary[i].type == 'continent') {
+                    continent_list.push(i);
+                }
+            }
+        }
+        console.log(continent_list);
+
+        // Initialise an empty list to hold all the appendables to the display
+        var anywhere_appendables = [];
+        // What to do on each successful AJAX call
+        function onAnywhereSucceess(obj) {
+            // If there are any results
+            if (obj._results > 0) {
+                const data = obj.data
+                // Get back list of collapsibles or just a regular table
+                const appendables = buildCollapsibleList(data, depart, arrive);
+                // Add the collapsibles list to the anywhere appendables
+                anywhere_appendables.push.apply(anywhere_appendables, appendables);
+            }
+        }
+
+        // startLoader();
+
+        // Set up the list of promises for the AJAX calls
+        var promises = [];
+        // Iterate through continent list and add AJAX call to the list of promises
+        for (continent in continent_list) {
+            //Replace the anywhere in the string with the correct continent code
+            const search = 'anywhere';
+            const replaceWith = continent_list[continent];
+                
+
+            const continentUrl = searchUrl.split(search).join(replaceWith);
+            console.log(continentUrl);
+
+            var request = $.ajax(continentUrl, {type: "GET",
+            data: {}, headers: {apikey: API_KEY}, success: onAnywhereSucceess});
+
+            // Push request to the list of promises
+            promises.push(request);
+        }
+
+        // When the promises have concluded
+        $.when.apply(null, promises).done(function (){
+            if (anywhere_appendables.length < 1 ) {
+                alert("No flights could be found");
+            } else {
+                // Get the div container to append to
+                const tableContainer = document.getElementById('flights-container');
+                // Order the collapsibles by price
+                const ordered_appendables = orderCollapsibles(anywhere_appendables);
+                //Iterate through list and append to the flight container
+                for (const item of ordered_appendables) {
+                    tableContainer.appendChild(item);
+                }
+
+                // Set up the collapsible open and closing
+                activateCollapsibles();
+            }
+
+
+            // Close loader
+            //stopLoader();
+        })
     }
 
     function processResults(data, target) {
@@ -674,7 +780,7 @@ function FlightSearch() {
 
             // Get OUTGOING 
             // Get route and append
-            const out_route = `${location_dictionary[data[i].flyFrom].name} to ${location_dictionary[data[i].flyTo].name}`
+            const out_route = `${location_dictionary[data[i].flyFrom].dispName} to ${location_dictionary[data[i].flyTo].dispName}`
             flight.route.push(out_route);
             // Initialise the stops lists
             var out_stops = [];
@@ -687,7 +793,7 @@ function FlightSearch() {
                     route: `${location_dictionary[stops[j].flyFrom].name} to ${location_dictionary[stops[j].flyTo].name}`,
                     depart: convertNiceDate(stops[j].local_departure),
                     arrive: convertNiceDate(stops[j].local_arrival),
-                    duration: convertDuration(new Date(stops[j].utc_departure).getTime() - new Date(stops[j].utc_arrival).getTime())
+                    duration: convertDuration( (new Date(stops[j].utc_arrival).getTime() - new Date(stops[j].utc_departure).getTime()) / 1000)
                 }
 
                 if (stops[j].return === 0) {
@@ -714,13 +820,13 @@ function FlightSearch() {
             const out_duration = convertDuration(data[i].duration.departure);
             flight.duration.push(out_duration);
             // Get price and append to flight
-            const out_price = data[i].price;
+            const out_price = `€${data[i].price}`;
             flight.cost.push(out_price);
 
             // Get the return information if return stops list is not empty
             if (ret_stops.length > 0) {
                 // Get route and append to flight
-                const ret_route = `${location_dictionary[data[i].flyTo.name]} to ${location_dictionary[data[i].flyFrom.name]}`
+                const ret_route = `${location_dictionary[data[i].flyTo].dispName} to ${location_dictionary[data[i].flyFrom].dispName}`
                 flight.route.push(ret_route);
                 // Append stops to flight (or direct if only one)
                 if (ret_stops.length === 1) {
@@ -729,10 +835,10 @@ function FlightSearch() {
                     flight.stops.push(ret_stops);
                 }
                 // Get departure time and append to flight
-                const ret_depart_time = ret_stops[0].local_departure;
+                const ret_depart_time = ret_stops[0].depart;
                 flight.depart.push(ret_depart_time);
                 // Get arrival time and append to flight
-                const ret_arrive_time = ret_stops[ret_stops.length - 1].local_arrival;
+                const ret_arrive_time = ret_stops[ret_stops.length - 1].arrive;
                 flight.arrive.push(ret_arrive_time);
                 // Get duration and append to flight
                 const ret_duration = convertDuration(data[i].duration.return);
@@ -776,13 +882,47 @@ function FlightSearch() {
 
     }
 
-    function buildCollapsbileList(data, depart, arrive) {
+    // Function to decide the which display type will be persued
+    function displayTypeBool(deptype, arrtype) {
+        // Variable to be returned
+        var disType;
+        if (["airport", "city"].includes(deptype) && ["country"].includes(arrtype) || ["country"].includes(deptype) && ["country"].includes(arrtype)) {
+            disType = 'cityArrival';
+        } else if (["country"].includes(deptype) && ["airport", "city"].includes(arrtype)) {
+            disType = 'cityDeparture'
+        } else if ((["airport" , "city" , "country"].includes(deptype)  && ["region" , "continent" ,"anywhere"].includes(arrtype) )  ||  (["region" , "continent" , "anywhere"].includes(deptype) && ["region" , "continent"].includes(arrtype))) {
+            disType = 'countryArrival'
+        } else if (["region" , "continent" , "anywhere"].includes(deptype) && ["airport" , "city" , "country"].includes(arrtype)) {
+            disType = 'countryDeparture'
+        } else {
+            disType = 'normal'
+        }
+
+        return disType
+    }
+
+    function buildCollapsibleList(data, depart, arrive) {
         // Create a list of collapsibles to be appended to the display
         var appendables = [];
         // Decide collapsible format based on the departure and arrival location types
-        const deptype = location_dictionary[codeDictionary[depart]].type;
-        const arrtype = location_dictionary[codeDictionary[arrive]].type;
-        if (deptype == ('airport' || 'city') && arrtype == 'country' || deptype == 'country' && arrtype == 'country') {
+        var deptype;
+        var arrtype;
+        // if depart or arrive is 'Anywhere', make it lower case
+        if (depart == 'Anywhere') {
+            deptype = 'anywhere';
+        } else {
+            deptype = location_dictionary[codeDictionary[depart]].type;
+        }
+        if (arrive == 'Anywhere') {
+            arrtype = 'anywhere';
+        } else {
+            arrtype = location_dictionary[codeDictionary[arrive]].type;
+
+        }
+
+        const disType = displayTypeBool(deptype, arrtype);
+
+        if (disType == 'cityArrival') {
             // CITY ARRIVAL
             // Create a dictionary of results to build into collapsibles
             const entry_dict = processResults(data, 'cityTo');
@@ -792,7 +932,7 @@ function FlightSearch() {
                 appendables.push(makeCollapsible(location, entry_dict[location], 'to'));
             }
 
-        } else if ( (deptype == 'country' && arrtype == ('airport' || 'city') ) ) {
+        } else if (disType == 'cityDeparture') {
             // CITY DEPARTURE
             // Create a dictionary of results to build into collapsibles
             const entry_dict = processResults(data, 'cityFrom');
@@ -803,7 +943,7 @@ function FlightSearch() {
                 appendables.push(makeCollapsible(location, entry_dict[location], 'from'));
             }
 
-        } else if ( (deptype == ('airport' || 'city' || 'country')  && arrtype == ('region' || 'continent' || 'anywhere') )  ||  (deptype == ('region' || 'continent' || 'anywhere') && arrtype == ('region' || 'continent')) ) {
+        } else if ( disType == 'countryArrival' ) {
             // COUNTRY ARRIVAL
             // Create a dictionary of results to build into collapsibles
             const entry_dict = processResults(data, 'countryTo');
@@ -813,7 +953,7 @@ function FlightSearch() {
                 appendables.push(makeCollapsible(location, entry_dict[location], 'to'));
             }
 
-        } else if ( deptype == ('region' || 'continent' || 'anywhere') && arrtype == ('airport' || 'city' || 'country') ) {
+        } else if ( disType == 'countryDeparture' ) {
             // COUNTRY DEPARTURE
             // Create a dictionary of results to build into collapsibles
             const entry_dict = processResults(data, 'countryFrom');
@@ -829,9 +969,8 @@ function FlightSearch() {
             // Make a list of normal flights
             var normal_flights = []
             // Iterate through the dictionary locations
-            for (const key of Object.entries(entry_dict)) {
-                console.log(key);
-                normal_flights.concat(entry_dict[key])
+            for (var key in entry_dict) {
+               normal_flights =  normal_flights.concat(entry_dict[key])
             }
             // Sort the flight list by price
             normal_flights.sort(function(a, b) {
@@ -847,6 +986,25 @@ function FlightSearch() {
         console.log(appendables);
 
         return appendables
+    }
+
+    // Order collapsibles from an 'anywhere search'
+    function orderCollapsibles(list) {
+        // Function to sort the 
+        function compare(a,b) {
+            const r = /\d+/;
+            // Match the integer values of the collapsibles text content
+            var a_price = parseInt(a.firstChild.textContent.match(r));
+            var b_price = parseInt(b.firstChild.textContent.match(r));
+
+            if (a_price < b_price)
+               return -1;
+            if (a_price > b_price)
+              return 1;
+            return 0;
+        }
+          
+        return list.sort(compare);
     }
 
     // FR4 Set listener to search button to activate search
