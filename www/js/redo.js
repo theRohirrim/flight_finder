@@ -655,7 +655,7 @@ function FlightSearch() {
         }
         var limit;
         if (depart == 'Anywhere') {
-            limit = Math.round(document.getElementById('limit_num').value / 3);
+            limit = Math.round(document.getElementById('limit_num').value/1.5);
         } else {
             limit = document.getElementById('limit_num').value
         }
@@ -734,16 +734,16 @@ function FlightSearch() {
         console.log(continent_list);
 
         // Initialise an empty list to hold all the appendables to the display
-        var anywhere_appendables = [];
+        var anywhere_dicts = [];
         // What to do on each successful AJAX call
         function onAnywhereSucceess(obj) {
             // If there are any results
             if (obj._results > 0) {
                 const data = obj.data
                 // Get back list of collapsibles or just a regular table
-                const appendables = buildCollapsibleList(data, depart, arrive);
+                const result_dict = processResults(data, "countryTo");
                 // Add the collapsibles list to the anywhere appendables
-                anywhere_appendables.push.apply(anywhere_appendables, appendables);
+                anywhere_dicts.push(result_dict);
             }
         }
 
@@ -768,11 +768,46 @@ function FlightSearch() {
 
         // When the promises have concluded
         $.when.apply(null, promises).done(function (){
-            if (anywhere_appendables.length < 1 ) {
+            if (anywhere_dicts.length < 1 ) {
                 alert("No flights could be found");
             } else {
                 // Get the div container to append to
                 const tableContainer = document.getElementById('flights-container');
+                // Merge dictionaries
+                // Pop one out
+                var merged_dict = anywhere_dicts.pop()
+                // Iterate through list of dicts and merge them all
+                for (let index in anywhere_dicts) {
+                    // Get dictionary
+                    const dict = anywhere_dicts[index];
+                    // Iterate through the keys and values of dictionary
+                    for (const [key, value] of Object.entries(dict)) {
+                        // If flight dictionary has location, add flights to the value list, otherwise make a new key/value
+                        if (merged_dict.hasOwnProperty(key)) {
+                            merged_dict[key].concat(value);
+                        } else {
+                            // Create the key with the added flight in a list
+                            merged_dict[key] = value;
+                        }
+                    }
+                }
+                // Go through and sort the flights in each list
+                for (let key in merged_dict) {
+                    // Get list of flights
+                    var flights = merged_dict[key];
+
+                    function compare(a, b) {
+                        if (a.cost < b.cost)
+                           return -1;
+                        if (a.cost > b.cost)
+                          return 1;
+                        return 0; 
+                    }
+                      
+                    flights.sort(compare);
+                }
+                // Build the collapsible list from the merged and sorted dictionary
+                const anywhere_appendables = buildCollapsibleList(merged_dict, depart, arrive);
                 // Order the collapsibles by price
                 const ordered_appendables = orderCollapsibles(anywhere_appendables);
                 //Iterate through list and append to the flight container
@@ -940,6 +975,15 @@ function FlightSearch() {
     function buildCollapsibleList(data, depart, arrive) {
         // Create a list of collapsibles to be appended to the display
         var appendables = [];
+        // If an anywhere search, a merged dictionary will already be provided
+        if (data.constructor == Object) {
+            for (const location in data) {
+                // Create the collapsible and add to the appendables list
+                appendables.push(makeCollapsible(location, data[location], 'to'));
+            }
+            return appendables
+        }
+
         // Decide collapsible format based on the departure and arrival location types
         var deptype;
         var arrtype;
