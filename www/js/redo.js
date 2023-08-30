@@ -733,6 +733,24 @@ function FlightSearch() {
         }
         console.log(continent_list);
 
+        // Decide collapsible format based on the departure and arrival location types
+        var deptype;
+        var arrtype;
+        // if depart or arrive is 'Anywhere', make it lower case
+        if (depart == 'Anywhere') {
+            deptype = 'anywhere';
+        } else {
+            deptype = location_dictionary[codeDictionary[depart]].type;
+        }
+        if (arrive == 'Anywhere') {
+            arrtype = 'anywhere';
+        } else {
+            arrtype = location_dictionary[codeDictionary[arrive]].type;
+
+        }
+
+        const disType = displayTypeBool(deptype, arrtype);
+
         // Initialise an empty list to hold all the appendables to the display
         var anywhere_dicts = [];
         // What to do on each successful AJAX call
@@ -740,8 +758,26 @@ function FlightSearch() {
             // If there are any results
             if (obj._results > 0) {
                 const data = obj.data
-                // Get back list of collapsibles or just a regular table
-                const result_dict = processResults(data, "countryTo");
+                // Create dictionary to be appended to the list of dictionaries
+                var result_dict;
+                // Decide on process results style based on the display type boolean
+                if (disType == 'cityArrival') {
+                    // CITY ARRIVAL
+                    // Create a dictionary of results to build into collapsibles
+                    result_dict = processResults(data, 'cityTo');
+                } else if (disType == 'cityDeparture') {
+                    // CITY DEPARTURE
+                    // Create a dictionary of results to build into collapsibles
+                    result_dict = processResults(data, 'cityFrom');
+                } else if (disType == 'countryArrival') {
+                    // COUNTRY ARRIVAL
+                    // Create a dictionary of results to build into collapsibles
+                    result_dict = processResults(data, 'countryTo');
+                } else if (disType == 'countryDeparture') {
+                    // COUNTRY DEPARTURE
+                    // Create a dictionary of results to build into collapsibles
+                    result_dict = processResults(data, 'countryFrom');
+                }
                 // Add the collapsibles list to the anywhere appendables
                 anywhere_dicts.push(result_dict);
             }
@@ -975,14 +1011,6 @@ function FlightSearch() {
     function buildCollapsibleList(data, depart, arrive) {
         // Create a list of collapsibles to be appended to the display
         var appendables = [];
-        // If an anywhere search, a merged dictionary will already be provided
-        if (data.constructor == Object) {
-            for (const location in data) {
-                // Create the collapsible and add to the appendables list
-                appendables.push(makeCollapsible(location, data[location], 'to'));
-            }
-            return appendables
-        }
 
         // Decide collapsible format based on the departure and arrival location types
         var deptype;
@@ -1004,6 +1032,14 @@ function FlightSearch() {
 
         if (disType == 'cityArrival') {
             // CITY ARRIVAL
+            // If an anywhere search, a merged dictionary will already be provided
+            if (data.constructor == Object) {
+                for (const location in data) {
+                    // Create the collapsible and add to the appendables list
+                    appendables.push(makeCollapsible(location, data[location], 'to'));
+                }
+                return appendables
+            }
             // Create a dictionary of results to build into collapsibles
             const entry_dict = processResults(data, 'cityTo');
             // Iterate through the dictionary and make collapsibles, attaching table to each
@@ -1014,17 +1050,32 @@ function FlightSearch() {
 
         } else if (disType == 'cityDeparture') {
             // CITY DEPARTURE
+            // If an anywhere search, a merged dictionary will already be provided
+            if (data.constructor == Object) {
+                for (const location in data) {
+                    // Create the collapsible and add to the appendables list
+                    appendables.push(makeCollapsible(location, data[location], 'from'));
+                }
+                return appendables
+            }
             // Create a dictionary of results to build into collapsibles
             const entry_dict = processResults(data, 'cityFrom');
             // Iterate through the dictionary and make collapsibles, attaching table to each
             for (const location in entry_dict) {
                 // Create the collapsible and add to the appendables list
-                const collap = makeCollapsible(location, )
                 appendables.push(makeCollapsible(location, entry_dict[location], 'from'));
             }
 
         } else if ( disType == 'countryArrival' ) {
             // COUNTRY ARRIVAL
+            // If an anywhere search, a merged dictionary will already be provided
+            if (data.constructor == Object) {
+                for (const location in data) {
+                    // Create the collapsible and add to the appendables list
+                    appendables.push(makeCollapsible(location, data[location], 'to'));
+                }
+                return appendables
+            }
             // Create a dictionary of results to build into collapsibles
             const entry_dict = processResults(data, 'countryTo');
             // Iterate through the dictionary and make collapsibles, attaching table to each
@@ -1035,6 +1086,14 @@ function FlightSearch() {
 
         } else if ( disType == 'countryDeparture' ) {
             // COUNTRY DEPARTURE
+            // If an anywhere search, a merged dictionary will already be provided
+            if (data.constructor == Object) {
+                for (const location in data) {
+                    // Create the collapsible and add to the appendables list
+                    appendables.push(makeCollapsible(location, data[location], 'from'));
+                }
+                return appendables
+            }
             // Create a dictionary of results to build into collapsibles
             const entry_dict = processResults(data, 'countryFrom');
             // Iterate through the dictionary and make collapsibles, attaching table to each
