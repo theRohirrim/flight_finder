@@ -43,6 +43,7 @@
                         <input id="departure_calendar" type="text" name="dates">
                     </div>
 
+                    <!-- FR7 Optional box to select return date -->
                     <div class="box date" id="return_bool">
                         <input type="checkbox" id="return" onclick="controller.disableDate()">
                         <label for="return">Return Flight</label>
@@ -56,13 +57,13 @@
                 </span>
 
                 <span class="other-options">
-                    <!-- Limit the number of returned results-->
+                    <!-- FR18 Limit the number of returned results-->
                     <div class="box option" id="limit">
                         <label>Number of Results</label>
                         <input id="limit_num" type="number" value="100" min="10" max="500" step="5">
                     </div>
 
-                    <!-- Limit returned results by their price-->
+                    <!-- FR6 Limit returned results by their price-->
                     <div class="box option" id="price_limit">
                         <label>Price Limit</label>
                         <input id="limit_price" type="range" value="2000" min="30" max="2000" step="10">

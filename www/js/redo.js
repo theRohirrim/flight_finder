@@ -10,18 +10,15 @@ document.addEventListener('DOMContentLoaded', onDeviceReady, false);
 function onDeviceReady() {
     // Cordova is now initialized. Have fun!
 
-    //console.log('Running cordova-' + cordova.platformId + '@' + cordova.version);
+    console.log('Running cordova-' + cordova.platformId + '@' + cordova.version);
     
     // Setup controller object
     controller = new FlightSearch();
 
-    // Set date to today function
-    //document.getElementById('datePicker').valueAsDate = new Date();
-
     // Get the location codes and add them to autocomplete list
     controller.doCodes(autocomplete_list, location_dictionary);
 
-    //Set the dange range picker on the inputs
+    // FR9 & FR10 Set the dange range picker on the inputs
     $('input[name="dates"]').daterangepicker({
         locale: {
             format: 'DD/MM/YYYY'
@@ -29,26 +26,9 @@ function onDeviceReady() {
     });
 
     
-    // Set up autcomplete for text input fields
+    // FR14 Set up autcomplete for text input fields
     controller.autocomplete(document.getElementById('depart'), autocomplete_list);
     controller.autocomplete(document.getElementById('arrive'), autocomplete_list);
-
-    // // Add table to the html
-    // // const table = controller.createTableFromObjects(return_flights);
-    // const tableContainer = document.getElementById('flights-container');
-    // // tableContainer.appendChild(table);
-
-    // // Make list of things to append
-    // var list = []
-
-    // for (const location in processed_dict) {
-    //     let div = controller.makeCollapsible(location, processed_dict[location], 'to')
-    //     list.push(div)
-    // }
-    // for (const location of list) {
-    //     tableContainer.appendChild(location);
-    // }
-   
 
 }
 
@@ -169,6 +149,7 @@ function FlightSearch() {
         }
     }
 
+    // FR11 & FR12 & FR13 Get codes of airports, cities, countries, regions, and continents for user selection
     this.doCodes = function(location_list, location_dictionary) {
         // AIRPORT LOCATION DATA
         function onAiportSuccess(obj) {
@@ -297,7 +278,7 @@ function FlightSearch() {
         var searchContinentUrl = BASE_GET_URL + '/locations/dump?locale=en-US&location_types=continent&limit=15000&sort=name&active_only=true';
         $.ajax(searchContinentUrl, {type: "GET", data: {}, headers: {apikey: API_KEY}, success: onContinentSuccess});
 
-        // FR2 Add 'Everywhere' as a choice for departure and arrival to list and dictionaries.
+        // FR2 Add 'Averywhere' as a choice for departure and arrival to list and dictionaries.
         var anywhere_entry = 'Anywhere';
         location_list.push(anywhere_entry);
         location_dictionary[anywhere_entry] = {code: 'anywhere',
@@ -320,6 +301,7 @@ function FlightSearch() {
         date_input;
     }
 
+    // FR15 Create an open-able modal with a flight's stops
     function makeModal(data, id) {
         // Create list for appendable items to properly append from
         var list = [] 
@@ -614,6 +596,17 @@ function FlightSearch() {
         // Then shows the flight container
         const cont = document.getElementById('flights-container')
         cont.removeAttribute("hidden");
+    }
+
+    // Update display of price limit
+    function updatePriceText() {
+        var val = document.getElementById("limit_price").value;
+
+        if (val == 2000) {
+            document.getElementById('price_input').innerHTML = 'No Limit';
+        } else {
+            document.getElementById('price_input').innerHTML = "€" + val;
+        }
     }
 
     // Test version to build the types of table displays needed
@@ -1127,7 +1120,7 @@ function FlightSearch() {
         return appendables
     }
 
-    // Order collapsibles from an 'anywhere search'
+    // FR5 Order collapsibles from an 'anywhere search' by price
     function orderCollapsibles(list) {
         // Function to sort the 
         function compare(a,b) {
@@ -1148,6 +1141,8 @@ function FlightSearch() {
 
     // FR4 Set listener to search button to activate search
     document.getElementById("search_button").addEventListener("click", doSearch);
+    // FR6 Set listener to price limit bar to show value
+    document.getElementById("limit_price").addEventListener("change", updatePriceText);
 
 }
 
@@ -1168,109 +1163,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
         } 
     });
     }
-
-
 });
-
-
-
-var autocomplete_list = [];
-var location_dictionary = {};
-var codeDictionary = [];
-
-var flights = [];
-
-var fake_stops = [{
-    route: 'Dublin (DUB) to The Land',
-    depart: '23/8/2023 07:30',
-    arrive: '23/8/2023 08:50',
-    duration: '1H 20M',
-    cost: '€24'
-}, {
-    route: 'The Land to The Sea',
-    depart: '23/8/2023 07:30',
-    arrive: '23/8/2023 08:50',
-    duration: '1H 20M',
-    cost: '€24'
-}]
-var fake_stops_two = [{
-    route: 'The Land to The Sea',
-    depart: '23/8/2023 07:30',
-    arrive: '23/8/2023 08:50',
-    duration: '1H 20M',
-    cost: '€24'
-}, {
-    route: 'Dublin (DUB) to The Land',
-    depart: '23/8/2023 07:30',
-    arrive: '23/8/2023 08:50',
-    duration: '1H 20M',
-    cost: '€24'
-}, {
-    route: 'The Land to The Sea',
-    depart: '23/8/2023 07:30',
-    arrive: '23/8/2023 08:50',
-    duration: '1H 20M',
-    cost: '€24'
-}];
-var flight_one = {
-    route: ['Dublin (DUB) to London Stanstead (STN)'],
-    stops: ['Direct'],
-    depart: ['23/8/2023 07:30'],
-    arrive: ['23/8/2023 08:50'],
-    duration: ['1H 20M'],
-    cost: ['€24']
-}
-var flight_two = {
-    route: ['Dublin (DUB) to The Sea'],
-    stops: [fake_stops],
-    depart: ['23/8/2023 07:30'],
-    arrive: ['23/8/2023 08:50'],
-    duration: ['1H 20M'],
-    cost: ['€24']
-}
-var flight_three = {
-    route: ['Bloopy bin bop'],
-    stops: [fake_stops_two],
-    depart: ['23/8/2023 07:30'],
-    arrive: ['23/8/2023 08:50'],
-    duration: ['1H 20M'],
-    cost: ['€24']
-}
-flights.push(flight_one, flight_two, flight_three);
-
-var return_flights = [];
-var flights_one =
-    {route: ['Dublin (DUB) to London Stanstead (STN)', 'London Stanstead (STN) To Dublin (DUB)'],
-    stops: ['Direct', fake_stops],
-    depart: ['23/8/2023 07:30', '25/08/2023 11:45'],
-    arrive: ['23/8/2023 08:50', '25/08/2023 13:10'],
-    duration: ['1H 20M', '1H 30M'],
-    cost: ['€24', null]
-}
-
-var flights_two =
-    {route: ['Dublin (DUB) to London Stanstead (STN)', 'London Stanstead (STN) To Dublin (DUB)'],
-    stops: ['Direct', fake_stops],
-    depart: ['23/8/2023 07:30', '25/08/2023 11:45'],
-    arrive: ['23/8/2023 08:50', '25/08/2023 13:10'],
-    duration: ['1H 20M', '1H 30M'],
-    cost: ['€24', null]
-}
-
-var flights_three = {
-    route: ['Dublin (DUB) to Paris Charles de Gaul (CDG)', 'Paris Charles de Gaul (CDG) To Dublin (DUB)'],
-    stops: ['Direct', fake_stops],
-    depart: ['23/8/2023 07:30', '25/08/2023 11:45'],
-    arrive: ['23/8/2023 08:50', '25/08/2023 13:10'],
-    duration: ['1H 20M', '1H 30M'],
-    cost: ['€24', null]
-}
-
-return_flights.push(flights_one, flights_two, flights_three);
-
-var processed_dict = {
-    London: [flights_one, flights_two],
-    Paris: [flights_three]
-}
 
 module.exports = {FlightSearch: FlightSearch};
