@@ -20,13 +20,12 @@
 // Wait for the deviceready event before using any of Cordova's device APIs.
 // See https://cordova.apache.org/docs/en/latest/cordova/events/events.html#deviceready
 document.addEventListener('deviceready', onDeviceReady, false);
+document.addEventListener('DOMContentLoaded', onDeviceReady, false);
 
 function onDeviceReady() {
     // Cordova is now initialized. Have fun!
 
-    console.log('Running cordova-' + cordova.platformId + '@' + cordova.version);
-
-    //
+    //console.log('Running cordova-' + cordova.platformId + '@' + cordova.version);
     
     // Setup controller object
     controller = new FlightSearch();
@@ -54,7 +53,7 @@ function FlightSearch() {
     var API_KEY = "j9z5EBBq-xysj_2iuZzB21Oau3kNPRl_";
 
     // Autocomplete text inputs for locations, from W3Schools @ https://www.w3schools.com/howto/howto_js_autocomplete.asp
-    this.autocomplete = function(inp, arr) {
+    function autocomplete(inp, arr) {
         /* Takes two arguments, text input and array of possible values */
         var currentFocus;
         // Execute function when someone writes in the text field
@@ -126,8 +125,8 @@ function FlightSearch() {
             x[currentFocus].classList.add("autocomplete-active");
         }
         function removeActive(x) {
-            // A function to remove the "active" class from all autocomplete items
-;            for (var i = 0; i < x.length; i++) {
+            // A function to remove the "active" class from all autocomplete items           
+            for (var i = 0; i < x.length; i++) {
                 x[i].classList.remove("autocomplete-active");
             }
         }
@@ -166,6 +165,7 @@ function FlightSearch() {
         }
         return parts.join("-");
     }
+    
 
     // Date Format Converter - to match format accepted by the API (dd-mm-yyyy)
     function convertDateFormat(date_string) {
@@ -423,13 +423,19 @@ function FlightSearch() {
         return string.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     };
 
-    this.doCodes = function() {
+    function doCodes() {
         // AIRPORT LOCATION DATA
         function onAiportSuccess(obj) {
             // Go through list of codes
             for (let i = 0; i < obj.locations.length; i++) {
-                var auto_entry = convertString(obj.locations[i].city.name) + " (" + 
+                // Create an entry of the airport name, and country
+                var auto_entry = convertString(obj.locations[i].name) + " (" + 
                 obj.locations[i].code + "), " + obj.locations[i].city.country.name;
+                // Check if entry has the city name, adding it if it does not
+                if (!auto_entry.toUpperCase().includes(convertString(obj.locations[i].city.name).toUpperCase())) {
+                    auto_entry = convertString(obj.locations[i].city.name) + ' ' + auto_entry;
+                }
+
                 // Add each entry to autocomplete list
                 autocomplete_list.push(auto_entry);
                 // Add each entry to lookup dictionary
@@ -537,6 +543,27 @@ function FlightSearch() {
     document.getElementById("search_button").addEventListener("click", doSearch); 
     // FR5 Set listener to price limit bar to show value
     document.getElementById("limit_price").addEventListener("change", updatePriceText);
+
+
+    function testFunc(string) {
+        console.log(string);
+    }
+    
+    // Allowing all the functions to be called from console for testing purposes.
+    return {
+        testFunc: testFunc,
+        doCodes: doCodes,
+        doSearch: doSearch,
+        autocomplete: autocomplete,
+        incrementDate: incrementDate,
+        convertDateFormat: convertDateFormat,
+        convertNiceDate: convertNiceDate,
+        convertDuration: convertDuration,
+        startLoader: startLoader,
+        stopLoader: stopLoader,
+
+
+    };
 }
 var autocomplete_list = [];
 var location_dictionary = {};
