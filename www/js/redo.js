@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', onDeviceReady, false);
 function onDeviceReady() {
     // Cordova is now initialized. Have fun!
 
-    console.log('Running cordova-' + cordova.platformId + '@' + cordova.version);
+    // console.log('Running cordova-' + cordova.platformId + '@' + cordova.version);
     
     // Setup controller object
     controller = new FlightSearch();
@@ -30,7 +30,7 @@ function onDeviceReady() {
     controller.autocomplete(document.getElementById('depart'), autocomplete_list);
     controller.autocomplete(document.getElementById('arrive'), autocomplete_list);
 
-}
+}           // J Holt H740671X
 
 function FlightSearch() {
     console.log("Creating controller/model");
@@ -47,7 +47,7 @@ function FlightSearch() {
     this.autocomplete = function(inp, arr) {
         /* Takes two arguments, text input and array of possible values */
         var currentFocus;
-        // Execute function when someone writes in the text field
+        // Execute function when someone writes in the text field           J Holt H740671X
         inp.addEventListener("input", function(e) {
             var a,b, i, val = this.value;
             // Close any open lists of autocompleted values
@@ -165,7 +165,7 @@ function FlightSearch() {
                 // Get code for entry
                 const code = obj.locations[i].code;
                 // Get type for entry
-                const type = obj.locations[i].type;
+                const type = obj.locations[i].type;                 // J Holt H740671X
 
                 // Get presentable name, no country
                 var displayName = convertString(obj.locations[i].name) + " (" + 
@@ -202,7 +202,7 @@ function FlightSearch() {
                     // Add each entry to lookup dictionary
                     addToLocationDictionary(code, auto_entry, type);
                     // Add each entry to a code dictionary
-                    codeDictionary[auto_entry] = obj.locations[i].code
+                    codeDictionary[auto_entry] = obj.locations[i].id
                 }
             }
         }
@@ -278,7 +278,7 @@ function FlightSearch() {
         var searchContinentUrl = BASE_GET_URL + '/locations/dump?locale=en-US&location_types=continent&limit=15000&sort=name&active_only=true';
         $.ajax(searchContinentUrl, {type: "GET", data: {}, headers: {apikey: API_KEY}, success: onContinentSuccess});
 
-        // FR2 Add 'Averywhere' as a choice for departure and arrival to list and dictionaries.
+        // FR2 Add 'Averywhere' as a choice for departure and arrival to list and dictionaries.     J Holt H740671X
         var anywhere_entry = 'Anywhere';
         location_list.push(anywhere_entry);
         location_dictionary[anywhere_entry] = {code: 'anywhere',
@@ -301,7 +301,7 @@ function FlightSearch() {
         date_input;
     }
 
-    // FR15 Create an open-able modal with a flight's stops
+    // FR15 Create an open-able modal with a flight's stops         J Holt H740671X
     function makeModal(data, id) {
         // Create list for appendable items to properly append from
         var list = [] 
@@ -500,7 +500,7 @@ function FlightSearch() {
                 const mod_id = `modal${id}`
                 stopsButton.setAttribute("href", mod_id)
                 // Write the number of stops as the text of the button
-                stopsButton.textContent = entry.length;
+                stopsButton.textContent = entry.length - 1;
 
                 // Make the modal content
                 const mod = makeModal(entry, mod_id);
@@ -614,7 +614,7 @@ function FlightSearch() {
         // Build the url as we go along
         var searchUrl = `${BASE_GET_URL}/v2/search?`;
 
-        // Start the loader
+        // Start the loader                             J Holt H740671X
         startLoader();
 
         // Get locations and exit function if not valid
@@ -623,6 +623,11 @@ function FlightSearch() {
         // Exit function if location values are not in the list of locations
         if (!(autocomplete_list.includes(depart) && autocomplete_list.includes(arrive))){
             alert("Please enter correct departure and arrival locations");
+            stopLoader();
+            return
+        } else if (depart == arrive) {
+            alert("Please enter correct departure and arrival locations");
+            stopLoader();
             return
         }
         // Get the codes for locations
@@ -635,6 +640,16 @@ function FlightSearch() {
         const dates = document.getElementById("departure_calendar").value.split(' - ');
         var date_from = dates[0];
         var date_to = dates[1];
+        // Exit function if location values are not in the list of locations
+        const today = new Date();
+        var datearray = date_from.split("/");
+        var newdate = datearray[1] + '/' + datearray[0] + '/' + datearray[2];
+        const date_from_check = new Date(newdate);
+        if (date_from_check.setHours(0,0,0,0) < today.setHours(0,0,0,0)){
+            alert("You cannot enter departure and arrival dates in the past");
+            stopLoader();
+            return
+        }
         // Append dates to the string
         searchUrl += `&${Object.keys({date_from})[0]}=${date_from}&${Object.keys({date_to})[0]}=${date_to}`
         // Get return dates if return flight checkbox is ticked
@@ -643,6 +658,15 @@ function FlightSearch() {
             const dates = document.getElementById("return_calendar").value.split(' - ');
             var return_from = dates[0];
             var return_to = dates[1];
+            // Exit function if location values are not in the list of locations
+            var datearray = return_from.split("/");
+            var newdate = datearray[1] + '/' + datearray[0] + '/' + datearray[2];
+            const return_from_check = new Date(newdate);
+            if (return_from_check.setHours(0,0,0,0) < today.setHours(0,0,0,0)){
+                alert("You cannot enter departure and arrival dates in the past");
+                stopLoader();
+                return
+            }
             // Append the two values to the list
             searchUrl += `&${Object.keys({return_from})[0]}=${return_from}&${Object.keys({return_to})[0]}=${return_to}`;
         }
@@ -651,6 +675,16 @@ function FlightSearch() {
             limit = Math.round(document.getElementById('limit_num').value/1.5);
         } else {
             limit = document.getElementById('limit_num').value
+        }
+        // Exit function if limit is less than 0
+        if (limit < 1) {
+            alert("You cannot have the result limit be less than 1");
+            stopLoader();
+            return
+        } else if (limit > 500) {
+            alert("You cannot have the result limit be more than 500");
+            stopLoader();
+            return
         }
         var price_to = document.getElementById("limit_price").value;
         if (price_to == 2000) {
@@ -794,6 +828,8 @@ function FlightSearch() {
             // Push request to the list of promises
             promises.push(request);
         }
+
+                        // J Holt H740671X
 
         // When the promises have concluded
         $.when.apply(null, promises).done(function (){
@@ -971,7 +1007,7 @@ function FlightSearch() {
         col_content.classList.add('content');
         // Create a table with the flights
         const tab = createTableFromObjects(flights)
-        // Attach the table to the collapsible content div
+        // Attach the table to the collapsible content div      J Holt H740671X
         col_content.appendChild(tab);
 
         const div = document.createElement('div');
@@ -1164,5 +1200,9 @@ document.addEventListener("DOMContentLoaded", (event) => {
     });
     }
 });
+
+var autocomplete_list = [];
+var location_dictionary = {};
+var codeDictionary = {};
 
 module.exports = {FlightSearch: FlightSearch};
