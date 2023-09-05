@@ -12,7 +12,7 @@ function onDeviceReady() {
 
     // console.log('Running cordova-' + cordova.platformId + '@' + cordova.version);
     
-    // Setup controller object
+    // Setup controller object              J Holt H740671X
     controller = new FlightSearch();
 
     // Get the location codes and add them to autocomplete list
@@ -30,7 +30,7 @@ function onDeviceReady() {
     controller.autocomplete(document.getElementById('depart'), autocomplete_list);
     controller.autocomplete(document.getElementById('arrive'), autocomplete_list);
 
-}           // J Holt H740671X
+}
 
 function FlightSearch() {
     console.log("Creating controller/model");
@@ -609,7 +609,6 @@ function FlightSearch() {
         }
     }
 
-    // Test version to build the types of table displays needed
     function doSearch() {
         // Build the url as we go along
         var searchUrl = `${BASE_GET_URL}/v2/search?`;
@@ -721,7 +720,7 @@ function FlightSearch() {
             if (data.length == 0) {
                 // Alert the user if there were no results
                 alert("There were no results for your search");
-                // Remove the loading icon if its still going
+                // Remove the loading icon if its still going       J Holt H740671X
                 stopLoader();
             } else {
                 // Get back list of collapsibles or just a regular table
@@ -740,8 +739,6 @@ function FlightSearch() {
 
             }
         }
-
-        // var searchUrl = `${BASE_GET_URL}/v2/search?fly_from=${depart}&fly_to=${arrive}&date_from=${date_from}&date_to=${date_to}&return_from=${return_from}&return_to=${return_to}&limit=100`
 
         $.ajax(searchUrl, {type: "GET",
                 data: {}, headers: {apikey: API_KEY}, success: onSuccess});
@@ -810,7 +807,7 @@ function FlightSearch() {
             }
         }
 
-        // Set up the list of promises for the AJAX calls
+        // Set up the list of promises for the AJAX calls       J Holt H740671X
         var promises = [];
         // Iterate through continent list and add AJAX call to the list of promises
         for (continent in continent_list) {

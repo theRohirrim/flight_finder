@@ -26,6 +26,10 @@ body {
     height: 100vh;
 }
 
+footer {
+    margin-top: auto;
+}
+
 /* Set the background animation gradient */
 @keyframes gradient {
     0% {
@@ -415,7 +419,7 @@ screen sizes */
     }
 }
 
-/* For larger than tablets but smaller than 4k desktops */
+/* For larger than tablets but smaller than 4k desktops     J HOLT H740671X */
 @media screen and (min-width: 900px) {
     legend, .locations, .dates, .other-options, .tableCell, .headerCell {
         font-size: 16px;

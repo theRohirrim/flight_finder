@@ -47,7 +47,7 @@ describe('Get all the codes for locations via AJAX requests', () => {
         jest.resetAllMocks();
     });
 
-    //Set up API URL
+    //Set up API URL                                        J Holt  H740671X
     var BASE_GET_URL = "https://api.tequila.kiwi.com";
 
     var API_KEY = "j9z5EBBq-xysj_2iuZzB21Oau3kNPRl_";
@@ -141,7 +141,7 @@ describe('Extract data to a list', () => {
                 }
 
    
-                // Add each entry to autocomplete list
+                // Add each entry to autocomplete list                          J Holt  H740671X
                 location_list.push(auto_entry);
                 // Add each entry to lookup dictionary
                 location_dictionary[auto_entry] = {code: obj.locations[i].code,
@@ -228,7 +228,7 @@ describe('Extract data to a list', () => {
 
         // REGION LOCATION DATA
         function onRegionSuccess(obj) {
-            // Go through list of codes
+            // Go through list of codes                             J Holt H740671X
             for (let i = 0; i < obj.locations.length; i++) {
                 var auto_entry = convertString(obj.locations[i].name) + " (Region)";
                 // Add each entry to autocomplete list
@@ -261,7 +261,7 @@ describe('Extract data to a list', () => {
             // Go through list of codes
             for (let i = 0; i < obj.locations.length; i++) {
                 var auto_entry = convertString(obj.locations[i].name) + " (Continent)";
-                // Add each entry to autocomplete list
+                // Add each entry to autocomplete list                                  J Holt H740671X
                 location_list.push(auto_entry);
                 // Add each entry to lookup dictionary                    
                 location_dictionary[auto_entry] = {code: obj.locations[i].id,
@@ -327,7 +327,7 @@ describe('Smaller functions tested', () => {
     })
 
     function convertDuration (seconds) {
-        // Takes the duration from the flight info and converts to hours and mins
+        // Takes the duration from the flight info and converts to hours and mins               J Holt H740671X
         var minutes = seconds / 60;
         var hours = (Math.floor(minutes / 60)).toString();
         var remainder = (minutes % 60).toString();
