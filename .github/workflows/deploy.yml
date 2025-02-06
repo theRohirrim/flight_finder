@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Replace API key in JavaScript
-        run: sed -i 's/__API_KEY__/${{ secrets.MY_API_KEY }}/g' js/index.j
+        run: sed -i 's/__API_KEY__/${{ secrets.KIWI_API_KEY }}/g' js/index.j
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
