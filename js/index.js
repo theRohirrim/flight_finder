@@ -50,7 +50,7 @@ function FlightSearch() {
     //Set up API URL
     var BASE_GET_URL = "https://api.tequila.kiwi.com";
 
-    var API_KEY = "j9z5EBBq-xysj_2iuZzB21Oau3kNPRl_";
+    var API_KEY = "__API_KEY__";
 
     // Autocomplete text inputs for locations, from W3Schools @ https://www.w3schools.com/howto/howto_js_autocomplete.asp
     function autocomplete(inp, arr) {
